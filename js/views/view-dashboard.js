@@ -62,7 +62,12 @@ const view = {
       <div class="row">
         <div class="col">
           <div class="card">
-            <h2 style="color:var(--accent);">📊 Rentabilidad Global</h2>
+            <h2 style="color:var(--primary); display:flex; align-items:center; gap:8px; margin:0 0 15px 0;">
+              <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24">
+                <path d="M9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4zm2.5 2.25L12 15.5l-7.5 3.75v-2.5L12 13l7.5 3.75v2.5z"/>
+              </svg>
+              Rentabilidad Global
+            </h2>
             <div class="kpi" style="color:var(--primary);">${((totalRentalIncome * 12 / totalPropertyValue) * 100).toFixed(2)}%</div>
             <div class="small muted">Rentabilidad bruta anual</div>
             <div style="margin-top:10px;">
@@ -73,7 +78,12 @@ const view = {
         </div>
         <div class="col">
           <div class="card">
-            <h2 style="color:var(--accent);">💰 Cashflow Global</h2>
+            <h2 style="color:var(--secondary); display:flex; align-items:center; gap:8px; margin:0 0 15px 0;">
+              <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+              Cashflow Global
+            </h2>
             <div class="kpi text-success">${fmtEUR(totalRentalIncome)}</div>
             <div class="small muted">Ingresos mensuales actuales</div>
             <div style="margin-top:10px;">
@@ -84,7 +94,12 @@ const view = {
         </div>
         <div class="col">
           <div class="card">
-            <h2 style="color:var(--accent);">🏦 Tesorería</h2>
+            <h2 style="color:var(--primary); display:flex; align-items:center; gap:8px; margin:0 0 15px 0;">
+              <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24">
+                <path d="M2 4v16h20V4H2zm18 14H4V6h16v12zm-10-2h8V8h-8v8zm2-6h4v4h-4v-4z"/>
+              </svg>
+              Tesorería
+            </h2>
             <div class="kpi" style="color:var(--primary);">${fmtEUR(treasuryByAccount.reduce((sum, acc) => sum + acc.balance, 0))}</div>
             <div class="small muted">Saldo total disponible</div>
             <div style="margin-top:10px;">
@@ -103,7 +118,12 @@ const view = {
       <div class="row">
         <div class="col">
           <div class="card">
-            <h2 style="color:var(--primary);">📈 Evolución Cashflow</h2>
+            <h2 style="color:var(--primary); display:flex; align-items:center; gap:8px; margin:0 0 15px 0;">
+              <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24">
+                <path d="M5 3v4h8V3h6v18h-6v-4H5v4H1V3h4zm6 6H3v6h8V9z"/>
+              </svg>
+              Evolución Cashflow
+            </h2>
             <div class="muted">Gráfico de flujo de caja mensual (próximamente con Chart.js)</div>
             <div style="height:200px; background:var(--card); border:1px dashed var(--border); border-radius:8px; display:flex; align-items:center; justify-content:center; margin-top:15px;">
               <span class="muted">Gráfico de barras: Ingresos vs Gastos por mes</span>
@@ -116,27 +136,56 @@ const view = {
       <div class="row">
         <div class="col">
           <div class="card">
-            <h2 style="color:var(--primary);">⚡ Acciones Rápidas</h2>
+            <h2 style="color:var(--primary); display:flex; align-items:center; gap:8px; margin:0 0 15px 0;">
+              <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              Acciones Rápidas
+            </h2>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
               <button class="primary" onclick="location.hash='#/inmuebles'">+ Añadir Inmueble</button>
               <button class="primary" onclick="location.hash='#/loans'">Gestionar Préstamos</button>
-              <button class="secondary" onclick="generateReports()">📊 Generar Informes</button>
+              <button class="secondary" onclick="generateReports()" style="display:flex; align-items:center; gap:6px;">
+                <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24">
+                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                Generar Informes
+              </button>
             </div>
           </div>
         </div>
         <div class="col">
           <div class="card">
-            <h2 class="text-danger">🚨 Alertas</h2>
+            <h2 style="color:var(--error); display:flex; align-items:center; gap:8px; margin:0 0 15px 0;">
+              <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24">
+                <path d="M12 2L2 7v10c0 5.55 3.84 9.4 9 11 5.16-1.6 9-5.45 9-11V7l-10-5z"/>
+              </svg>
+              Alertas
+            </h2>
             <div style="margin-top:15px;">
               ${vacancyAlerts.length > 0 ? vacancyAlerts.map(alert => `
-                <div class="badge danger" style="display:block; margin-bottom:8px; padding:12px; text-align:left;">
-                  ${alert}
+                <div style="background:color-mix(in srgb, var(--error) 10%, transparent); border:1px solid var(--error); border-radius:8px; padding:12px; margin-bottom:12px; display:flex; align-items:flex-start; gap:12px;">
+                  <svg style="width:18px; height:18px; flex-shrink:0; fill:var(--error); margin-top:2px;" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                  <div style="flex:1;">
+                    <div style="font-weight:500; color:var(--error); margin-bottom:4px;">Vacante detectada</div>
+                    <div style="color:var(--text-primary); line-height:1.4;">${alert}</div>
+                  </div>
                 </div>
               `).join('') : '<div class="muted">No hay alertas pendientes</div>'}
               
               ${treasuryByAccount.filter(acc => acc.balance < acc.threshold).map(acc => `
-                <div class="badge danger" style="display:block; margin-bottom:8px; padding:12px; text-align:left;">
-                  Saldo bajo en ${acc.name}: ${fmtEUR(acc.balance)} (umbral: ${fmtEUR(acc.threshold)})
+                <div style="background:color-mix(in srgb, var(--warning) 10%, transparent); border:1px solid var(--warning); border-radius:8px; padding:12px; margin-bottom:12px; display:flex; align-items:flex-start; gap:12px;">
+                  <svg style="width:18px; height:18px; flex-shrink:0; fill:var(--warning); margin-top:2px;" viewBox="0 0 24 24">
+                    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                  </svg>
+                  <div style="flex:1;">
+                    <div style="font-weight:500; color:var(--warning); margin-bottom:4px;">Saldo bajo</div>
+                    <div style="color:var(--text-primary); line-height:1.4;">
+                      ${acc.name}: ${fmtEUR(acc.balance)} (umbral: ${fmtEUR(acc.threshold)})
+                    </div>
+                  </div>
                 </div>
               `).join('')}
             </div>
@@ -149,7 +198,12 @@ const view = {
       <div class="row">
         <div class="col">
           <div class="card">
-            <h2 style="color:var(--primary);">🏠 Resumen de Propiedades</h2>
+            <h2 style="color:var(--primary); display:flex; align-items:center; gap:8px; margin:0 0 15px 0;">
+              <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              </svg>
+              Resumen de Propiedades
+            </h2>
             <div class="grid" style="margin-top:15px;">
               <table>
                 <thead>
