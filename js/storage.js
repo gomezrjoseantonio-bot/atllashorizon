@@ -80,11 +80,11 @@ export function ensureSeed(){
   }
   if(!LS.getItem(BUDGETS_KEY)){
     LS.setItem(BUDGETS_KEY, JSON.stringify([
-      {categoryId:'housing', monthlyLimit:1000, alertThreshold:0.8},
       {categoryId:'utilities', monthlyLimit:200, alertThreshold:0.8},
-      {categoryId:'food', monthlyLimit:600, alertThreshold:0.8},
-      {categoryId:'transport', monthlyLimit:300, alertThreshold:0.8},
-      {categoryId:'entertainment', monthlyLimit:200, alertThreshold:0.8}
+      {categoryId:'loan_interest', monthlyLimit:800, alertThreshold:0.9},
+      {categoryId:'taxes_fees', monthlyLimit:500, alertThreshold:0.8},
+      {categoryId:'community_fees', monthlyLimit:150, alertThreshold:0.8},
+      {categoryId:'insurance', monthlyLimit:100, alertThreshold:0.8}
     ]));
   }
   if(!LS.getItem(REAL_KEY(year))){

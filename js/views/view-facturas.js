@@ -1,6 +1,7 @@
 import { getInvoices, saveInvoices, addInvoice, updateInvoice, deleteInvoice, getInvoiceAttachments, saveInvoiceAttachments, getProperties, getReal, saveReal, getCategories } from '../storage.js';
 import { fmtEUR, parseEuro } from '../utils.js';
 import { OCRService, classifyExpense } from '../ocr-service.js';
+import { addSampleInvoices } from '../demo-invoices.js';
 
 console.log('Loading invoice management view module');
 
@@ -115,6 +116,7 @@ const view = {
           <div style="margin-top:20px;">
             <button id="exportTaxReport" class="primary">📄 Exportar Informe Fiscal</button>
             <button id="exportDeductibleExpenses" class="secondary">📊 Exportar Gastos Deducibles (Excel)</button>
+            <button id="loadDemoData" class="warning" style="margin-left:20px;">🧪 Cargar Datos Demo</button>
           </div>
         </div></div>
       </div>
@@ -137,6 +139,11 @@ const view = {
     
     root.querySelector('#exportTaxReport').onclick = () => exportTaxReport(invoices, categories);
     root.querySelector('#exportDeductibleExpenses').onclick = () => exportDeductibleExpenses(invoices, categories);
+    root.querySelector('#loadDemoData').onclick = () => {
+      const result = addSampleInvoices();
+      alert(result.message);
+      view.mount(root.parentElement.parentElement); // Refresh view
+    };
     
     // Global functions for invoice actions
     window.editInvoice = (invoiceId) => editInvoiceModal(invoiceId, root);
