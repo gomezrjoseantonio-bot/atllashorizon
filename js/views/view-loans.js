@@ -26,7 +26,7 @@ function renderCompactLoansList(loans, accounts, properties) {
                 <div style="font-size: 14px; color: #666;">${loan.description}</div>
               </div>
               <div style="text-align: right;">
-                <div style="font-size: 20px; font-weight: bold; color: #2196F3;">${fmtEUR(monthlyPayment)}</div>
+                <div style="font-size: 20px; font-weight: bold; color: #1A3C68;">${fmtEUR(monthlyPayment)}</div>
                 <div style="font-size: 12px; color: #666;">cuota mensual</div>
               </div>
             </div>
@@ -65,28 +65,40 @@ function renderCompactLoansList(loans, accounts, properties) {
             <!-- Actions -->
             <div style="display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap;">
               <button onclick="event.stopPropagation(); viewLoanDetails('${loan.id}')" 
-                      style="flex: 1; min-width: 100px; background: #2196F3; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
-                📊 Detalles
+                      style="flex: 1; min-width: 100px; background: #1A3C68; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                Detalles
               </button>
               <button onclick="event.stopPropagation(); calculatePartialAmortization('${loan.id}')" 
-                      style="flex: 1; min-width: 100px; background: #FF9800; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
-                🧮 Amortizar
+                      style="flex: 1; min-width: 100px; background: #37C785; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                Amortizar
               </button>
-              <button onclick="event.stopPropagation(); editLoan('${loan.id}')" 
-                      style="background: #4CAF50; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
-                ✏️ Editar
-              </button>
-              <button onclick="event.stopPropagation(); deleteLoan('${loan.id}')" 
-                      style="background: #f44336; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
-                🗑️
-              </button>
+              <div style="position: relative; display: inline-block;">
+                <button onclick="event.stopPropagation(); toggleKebabMenu('${loan.id}')" 
+                        style="background: #f5f5f5; color: #333; border: 1px solid #ddd; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                  ⋯
+                </button>
+                <div id="kebab-${loan.id}" style="display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 100; min-width: 100px;">
+                  <button onclick="event.stopPropagation(); editLoan('${loan.id}')" 
+                          style="width: 100%; background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; font-size: 12px; border-bottom: 1px solid #eee;">
+                    Editar
+                  </button>
+                  <button onclick="event.stopPropagation(); deleteLoan('${loan.id}')" 
+                          style="width: 100%; background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; font-size: 12px; color: #E53935;">
+                    Eliminar
+                  </button>
+                </div>
+              </div>
             </div>
             
             ${property ? `
               <div style="margin-top: 10px; padding: 8px; background: #e8f5e8; border-radius: 6px; font-size: 12px;">
-                🏠 <strong>Inmueble:</strong> ${property.address}
+                <strong>Inmueble asociado:</strong> ${property.address}
               </div>
-            ` : ''}
+            ` : `
+              <div style="margin-top: 10px; padding: 8px; background: #fff3cd; border-radius: 6px; font-size: 12px; color: #856404;">
+                <strong>Sin inmueble asociado</strong>
+              </div>
+            `}
           </div>
         `;
       }).join('')}
@@ -111,19 +123,19 @@ function calculateMonthlyPayments(loans) {
 
 function getLoanTypeLabel(type) {
   const types = {
-    'mortgage': '🏠 Hipoteca',
-    'personal': '👤 Personal',
-    'car': '🚗 Coche',
-    'business': '💼 Negocio',
-    'other': '📄 Otro'
+    'mortgage': 'Hipoteca',
+    'personal': 'Personal',
+    'car': 'Coche',
+    'business': 'Negocio',
+    'other': 'Otro'
   };
   return types[type] || type;
 }
 
 function renderLoanForm(accounts, properties) {
   return `
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 15px; color: white; margin-bottom: 20px;">
-      <h2 style="margin: 0 0 10px 0;">💰 Nuevo Préstamo</h2>
+    <div style="background: #1A3C68; padding: 20px; border-radius: 15px; color: white; margin-bottom: 20px;">
+      <h2 style="margin: 0 0 10px 0;">Nuevo Préstamo</h2>
       <p style="margin: 0; opacity: 0.9;">Añade un préstamo con cálculo automático de cuotas</p>
     </div>
     
@@ -133,7 +145,7 @@ function renderLoanForm(accounts, properties) {
       <!-- Basic Information Card -->
       <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
         <h3 style="margin: 0 0 15px 0; color: #333; display: flex; align-items: center;">
-          <span style="background: #4CAF50; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">1</span>
+          <span style="background: #1A3C68; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">1</span>
           Información Básica
         </h3>
         
@@ -146,11 +158,11 @@ function renderLoanForm(accounts, properties) {
             <label class="small muted">Tipo de préstamo *</label><br/>
             <select id="loanType" required style="width:100%; margin-bottom:10px">
               <option value="">Seleccionar tipo</option>
-              <option value="mortgage">🏠 Hipoteca</option>
-              <option value="personal">👤 Personal</option>
-              <option value="car">🚗 Coche</option>
-              <option value="business">💼 Negocio</option>
-              <option value="other">📄 Otro</option>
+              <option value="mortgage">Hipoteca</option>
+              <option value="personal">Personal</option>
+              <option value="car">Coche</option>
+              <option value="business">Negocio</option>
+              <option value="other">Otro</option>
             </select>
           </div>
         </div>
@@ -192,18 +204,18 @@ function renderLoanForm(accounts, properties) {
       <!-- Property Association Card -->
       <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
         <h3 style="margin: 0 0 15px 0; color: #333; display: flex; align-items: center;">
-          <span style="background: #2196F3; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">2</span>
+          <span style="background: #37C785; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">2</span>
           Asociación
         </h3>
         
         <div class="row">
           <div class="col">
             <label class="small muted">Asociar préstamo a *</label><br/>
-            <select id="associationType" onchange="toggleAssociationOptions()" style="width:100%; margin-bottom:10px">
+            <select id="associationType" onchange="toggleAssociationOptions()" required style="width:100%; margin-bottom:10px">
               <option value="">Seleccionar asociación</option>
-              <option value="property">🏠 Inmueble específico</option>
-              <option value="investment">💎 Cartera de inversión</option>
-              <option value="personal">👤 Uso personal</option>
+              <option value="property">Inmueble específico</option>
+              <option value="investment">Cartera de inversión</option>
+              <option value="personal">Uso personal</option>
             </select>
           </div>
           <div class="col">
@@ -221,17 +233,17 @@ function renderLoanForm(accounts, properties) {
       <!-- Bonifications Card - Compact Design -->
       <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
         <h3 style="margin: 0 0 15px 0; color: #333; display: flex; align-items: center;">
-          <span style="background: #FF9800; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">3</span>
+          <span style="background: #F9A825; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">3</span>
           Bonificaciones
           <span style="margin-left: auto; font-size: 12px; color: #666;">Opcional</span>
         </h3>
         
         <div class="small muted" style="margin-bottom: 15px;">
-          💡 Añade descuentos según productos contratados con el banco
+          Añade descuentos según productos contratados con el banco
         </div>
         
         <details>
-          <summary style="cursor: pointer; color: #2196F3; font-weight: 500;">🎁 Configurar bonificaciones</summary>
+          <summary style="cursor: pointer; color: #1A3C68; font-weight: 500;">Configurar bonificaciones</summary>
           <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
             ${renderCompactConditionsForm()}
           </div>
@@ -240,8 +252,8 @@ function renderLoanForm(accounts, properties) {
       
       <!-- Action Buttons -->
       <div style="text-align: center; padding: 20px;">
-        <button type="submit" class="primary" style="padding: 12px 30px; font-size: 16px; border-radius: 8px;">💾 Guardar Préstamo</button>
-        <button type="button" onclick="clearForm()" style="margin-left:15px; padding: 12px 25px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; cursor: pointer;">🧹 Limpiar</button>
+        <button type="submit" style="background: #1A3C68; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 8px; cursor: pointer;">Guardar préstamo</button>
+        <button type="button" onclick="clearForm()" style="margin-left:15px; padding: 12px 25px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; cursor: pointer;">Limpiar</button>
       </div>
     </form>
   `;
@@ -301,8 +313,8 @@ const view = {
     root.innerHTML = `
       <div class="row">
         <div class="col">
-          <div style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 30px; border-radius: 20px; color: white; margin-bottom: 30px; text-align: center;">
-            <h1 style="margin: 0 0 10px 0; font-size: 2.5rem;">🏦 Préstamos y Hipotecas</h1>
+          <div style="background: #1A3C68; padding: 30px; border-radius: 20px; color: white; margin-bottom: 30px; text-align: center;">
+            <h1 style="margin: 0 0 10px 0; font-size: 2.5rem;">Préstamos e hipotecas</h1>
             <p style="margin: 0; font-size: 1.1rem; opacity: 0.9;">Gestión inteligente con cálculo automático y optimización fiscal</p>
             ${loans.length > 0 ? `
               <div style="margin-top: 20px; display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
@@ -329,9 +341,9 @@ const view = {
         <div class="col">
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-              <h2 style="margin: 0;">📋 Mis Préstamos</h2>
-              <button onclick="showAddLoanForm()" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
-                ➕ Nuevo Préstamo
+              <h2 style="margin: 0;">Mis Préstamos</h2>
+              <button onclick="showAddLoanForm()" style="background: #1A3C68; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                Nuevo Préstamo
               </button>
             </div>
             ${renderCompactLoansList(loans, accounts, properties)}
@@ -399,6 +411,15 @@ function setupEventHandlers(root) {
   
   // Update bonification status icons
   updateBonificationStatus(root);
+  
+  // Add click listener to close kebab menus when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!event.target.closest('[id^="kebab-"]') && !event.target.closest('button[onclick*="toggleKebabMenu"]')) {
+      document.querySelectorAll('[id^="kebab-"]').forEach(menu => {
+        menu.style.display = 'none';
+      });
+    }
+  });
 }
 
 // Global functions for onclick handlers
@@ -430,7 +451,30 @@ window.editLoan = function(loanId) {
   const loan = loans.find(l => l.id === loanId);
   if (!loan) return;
   
+  // Show the form container
+  const container = document.querySelector('#loanFormContainer');
+  if (container) {
+    container.style.display = 'block';
+  }
+  
+  // Scroll to form
+  setTimeout(() => {
+    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+  
   populateLoanForm(loan);
+};
+
+window.toggleKebabMenu = function(loanId) {
+  const menu = document.getElementById(`kebab-${loanId}`);
+  if (menu) {
+    // Close all other kebab menus first
+    document.querySelectorAll('[id^="kebab-"]').forEach(m => {
+      if (m.id !== `kebab-${loanId}`) m.style.display = 'none';
+    });
+    
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
 };
 
 window.deleteLoan = function(loanId) {
