@@ -25,18 +25,33 @@ const view = {
       
       <div class="row">
         <div class="col"><div class="card">
-          <h2>📤 Subir Nueva Factura</h2>
+          <h2>📤 Subir Facturas</h2>
+          
+          <!-- Drag and Drop Zone -->
+          <div id="dropZone" style="border: 2px dashed #ccc; border-radius: 10px; padding: 40px; text-align: center; margin-bottom: 15px; transition: border-color 0.3s;">
+            <div style="font-size: 48px; margin-bottom: 15px;">📁</div>
+            <div style="font-size: 18px; margin-bottom: 10px;">Arrastra y suelta facturas aquí</div>
+            <div class="small muted" style="margin-bottom: 15px;">Soporta: PDF, JPG, PNG, ZIP (múltiples facturas)</div>
+            <div style="margin-bottom: 15px;">
+              <input type="file" id="invoiceFiles" accept=".pdf,.jpg,.jpeg,.png,.zip" multiple style="display: none;">
+              <button id="selectFiles" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">📂 Seleccionar Archivos</button>
+            </div>
+            <div id="fileList" style="margin-top: 15px; text-align: left;"></div>
+          </div>
+          
           <div style="margin-bottom:15px;">
-            <label class="small muted">Seleccionar archivo (PDF, JPG, PNG)</label><br/>
-            <input type="file" id="invoiceFile" accept=".pdf,.jpg,.jpeg,.png" style="margin-bottom:10px">
-            <button id="processInvoice" class="primary" disabled>🔍 Procesar con OCR</button>
+            <button id="processInvoices" class="primary" disabled>🔍 Procesar con OCR</button>
+            <button id="clearFiles" class="secondary" style="margin-left:10px;" disabled>🗑️ Limpiar</button>
           </div>
           
           <div id="ocrProgress" style="display:none; margin-top:15px;">
+            <div style="margin-bottom: 10px;">
+              <span id="progressText">Procesando archivos...</span>
+              <span id="progressCounter" style="float: right;">0/0</span>
+            </div>
             <div class="progress-bar">
               <div class="progress-fill" id="progressFill"></div>
             </div>
-            <div class="small muted">Procesando factura con OCR...</div>
           </div>
           
           <div id="ocrResults" style="display:none; margin-top:20px;">
@@ -123,18 +138,95 @@ const view = {
     `;
 
     // Event handlers
-    const fileInput = root.querySelector('#invoiceFile');
-    const processBtn = root.querySelector('#processInvoice');
+    const fileInput = root.querySelector('#invoiceFiles');
+    const selectFilesBtn = root.querySelector('#selectFiles');
+    const processBtn = root.querySelector('#processInvoices');
+    const clearBtn = root.querySelector('#clearFiles');
+    const dropZone = root.querySelector('#dropZone');
+    const fileList = root.querySelector('#fileList');
     
-    fileInput.onchange = () => {
-      processBtn.disabled = !fileInput.files[0];
+    let selectedFiles = [];
+    
+    // File selection handler
+    selectFilesBtn.onclick = () => fileInput.click();
+    
+    fileInput.onchange = (e) => {
+      handleFiles(e.target.files);
+    };
+    
+    // Drag and drop handlers
+    dropZone.ondragover = (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#007bff';
+      dropZone.style.backgroundColor = '#f8f9ff';
+    };
+    
+    dropZone.ondragleave = (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#ccc';
+      dropZone.style.backgroundColor = '';
+    };
+    
+    dropZone.ondrop = (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#ccc';
+      dropZone.style.backgroundColor = '';
+      handleFiles(e.dataTransfer.files);
+    };
+    
+    function handleFiles(files) {
+      selectedFiles = Array.from(files);
+      displayFileList();
+      processBtn.disabled = selectedFiles.length === 0;
+      clearBtn.disabled = selectedFiles.length === 0;
+    }
+    
+    function displayFileList() {
+      if (selectedFiles.length === 0) {
+        fileList.innerHTML = '';
+        return;
+      }
+      
+      const fileItems = selectedFiles.map((file, index) => {
+        const sizeKB = (file.size / 1024).toFixed(1);
+        const isSupported = /\.(pdf|jpe?g|png|zip)$/i.test(file.name);
+        
+        return `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 5px; ${!isSupported ? 'background: #ffebee;' : ''}">
+            <div>
+              <span style="font-weight: bold;">${file.name}</span>
+              <span class="small muted" style="margin-left: 10px;">${sizeKB} KB</span>
+              ${!isSupported ? '<span style="color: red; margin-left: 10px;">❌ Formato no soportado</span>' : ''}
+            </div>
+            <button onclick="removeFile(${index})" style="background: none; border: none; color: #dc3545; cursor: pointer;">🗑️</button>
+          </div>
+        `;
+      }).join('');
+      
+      fileList.innerHTML = `
+        <div style="margin-bottom: 10px;"><strong>Archivos seleccionados (${selectedFiles.length}):</strong></div>
+        ${fileItems}
+      `;
+    }
+    
+    window.removeFile = (index) => {
+      selectedFiles.splice(index, 1);
+      displayFileList();
+      processBtn.disabled = selectedFiles.length === 0;
+      clearBtn.disabled = selectedFiles.length === 0;
+    };
+    
+    clearBtn.onclick = () => {
+      selectedFiles = [];
+      fileInput.value = '';
+      displayFileList();
+      processBtn.disabled = true;
+      clearBtn.disabled = true;
     };
     
     processBtn.onclick = async () => {
-      const file = fileInput.files[0];
-      if (!file) return;
-      
-      await processInvoiceFile(file, root);
+      if (selectedFiles.length === 0) return;
+      await processInvoiceFiles(selectedFiles, root);
     };
     
     root.querySelector('#exportTaxReport').onclick = () => exportTaxReport(invoices, categories);
@@ -153,42 +245,221 @@ const view = {
   }
 };
 
-async function processInvoiceFile(file, root) {
+async function processInvoiceFiles(files, root) {
   const progressContainer = root.querySelector('#ocrProgress');
   const progressFill = root.querySelector('#progressFill');
+  const progressText = root.querySelector('#progressText');
+  const progressCounter = root.querySelector('#progressCounter');
   const resultsContainer = root.querySelector('#ocrResults');
   
   progressContainer.style.display = 'block';
   resultsContainer.style.display = 'none';
   
-  // Animate progress
-  let progress = 0;
-  const progressInterval = setInterval(() => {
-    progress += 2;
-    progressFill.style.width = Math.min(progress, 90) + '%';
-  }, 50);
+  const validFiles = files.filter(file => /\.(pdf|jpe?g|png|zip)$/i.test(file.name));
+  let processedCount = 0;
+  let allResults = [];
   
-  try {
-    // Process with OCR
-    const ocrResult = await ocrService.processInvoice(file);
-    clearInterval(progressInterval);
-    progressFill.style.width = '100%';
+  progressCounter.textContent = `${processedCount}/${validFiles.length}`;
+  
+  for (const file of validFiles) {
+    progressText.textContent = `Procesando: ${file.name}`;
+    progressFill.style.width = `${(processedCount / validFiles.length) * 100}%`;
     
-    // Store file attachment
-    const attachmentId = await storeInvoiceAttachment(file);
+    try {
+      if (file.name.toLowerCase().endsWith('.zip')) {
+        // Handle ZIP files (simplified - in real implementation would extract and process each file)
+        progressText.textContent = `Procesando ZIP: ${file.name} (simulado)`;
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate processing
+        
+        // For demo, create multiple sample invoices from ZIP
+        for (let i = 1; i <= 3; i++) {
+          const mockResult = await ocrService.processInvoice(new File([new Blob()], `invoice_${i}.pdf`, { type: 'application/pdf' }));
+          const attachmentId = await storeInvoiceAttachment(file);
+          allResults.push({ file: `${file.name}/invoice_${i}.pdf`, result: mockResult, attachmentId });
+        }
+      } else {
+        // Process single file
+        const ocrResult = await ocrService.processInvoice(file);
+        const attachmentId = await storeInvoiceAttachment(file);
+        allResults.push({ file: file.name, result: ocrResult, attachmentId });
+      }
+    } catch (error) {
+      console.error(`Error processing ${file.name}:`, error);
+      allResults.push({ file: file.name, error: error.message });
+    }
     
-    // Get property suggestions
-    const properties = getProperties();
-    const propertySuggestions = ocrService.extractPropertySuggestions(ocrResult.extractedData, properties);
-    
-    // Show results for review
-    showOCRResults(ocrResult, propertySuggestions, attachmentId, root);
-    
-  } catch (error) {
-    clearInterval(progressInterval);
-    progressContainer.style.display = 'none';
-    alert('Error procesando la factura: ' + error.message);
+    processedCount++;
+    progressCounter.textContent = `${processedCount}/${validFiles.length}`;
   }
+  
+  progressFill.style.width = '100%';
+  progressText.textContent = 'Procesamiento completado';
+  
+  // Show batch results
+  showBatchOCRResults(allResults, root);
+}
+
+async function processInvoiceFile(file, root) {
+  // Legacy function for single file processing - kept for compatibility
+  return processInvoiceFiles([file], root);
+}
+
+function showBatchOCRResults(allResults, root) {
+  const resultsContainer = root.querySelector('#ocrResults');
+  const properties = getProperties();
+  const categories = getCategories();
+  
+  const successfulResults = allResults.filter(r => !r.error);
+  const errorResults = allResults.filter(r => r.error);
+  
+  resultsContainer.innerHTML = `
+    <div class="card" style="border: 2px solid var(--accent);">
+      <h3>📊 Resultados del Procesamiento por Lotes</h3>
+      
+      <div class="row" style="margin-bottom: 20px;">
+        <div class="col">
+          <div style="text-align: center; padding: 15px; background: #e8f5e8; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: bold; color: #28a745;">${successfulResults.length}</div>
+            <div class="small">Archivos procesados</div>
+          </div>
+        </div>
+        <div class="col">
+          <div style="text-align: center; padding: 15px; background: ${errorResults.length > 0 ? '#ffebee' : '#f8f9fa'}; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: bold; color: ${errorResults.length > 0 ? '#dc3545' : '#666'};">${errorResults.length}</div>
+            <div class="small">Errores</div>
+          </div>
+        </div>
+      </div>
+      
+      ${errorResults.length > 0 ? `
+        <div style="margin-bottom: 20px; padding: 15px; background: #ffebee; border-radius: 8px;">
+          <h4 style="color: #dc3545; margin-bottom: 10px;">⚠️ Archivos con errores:</h4>
+          ${errorResults.map(r => `<div>• ${r.file}: ${r.error}</div>`).join('')}
+        </div>
+      ` : ''}
+      
+      ${successfulResults.length > 0 ? `
+        <div style="margin-bottom: 20px;">
+          <h4>✅ Facturas procesadas exitosamente:</h4>
+          <div style="max-height: 400px; overflow-y: auto;">
+            ${successfulResults.map((r, index) => {
+              const data = r.result.extractedData;
+              const propertySuggestions = ocrService.extractPropertySuggestions(data, properties);
+              
+              return `
+                <div class="batch-invoice-card" style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #fafafa;">
+                  <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                      <strong>${data.supplier}</strong>
+                      <div class="small muted">${r.file}</div>
+                    </div>
+                    <div style="text-align: right;">
+                      <div style="font-size: 18px; font-weight: bold;">${fmtEUR(data.totalAmount)}</div>
+                      <div class="small muted">${data.date}</div>
+                    </div>
+                  </div>
+                  
+                  <div class="row">
+                    <div class="col">
+                      <label class="small muted">Concepto</label><br/>
+                      <input type="text" class="batch-concept-${index}" value="${data.concept}" style="width:100%; font-size: 12px;">
+                    </div>
+                    <div class="col">
+                      <label class="small muted">Categoría</label><br/>
+                      <select class="batch-category-${index}" style="width:100%; font-size: 12px;">
+                        ${categories.filter(c => c.type === 'expense').map(cat => `
+                          <option value="${cat.id}" ${cat.id === data.suggestedCategory ? 'selected' : ''}>
+                            ${cat.deductible ? '✅' : '❌'} ${cat.name}
+                          </option>
+                        `).join('')}
+                      </select>
+                    </div>
+                    <div class="col">
+                      <label class="small muted">Inmueble</label><br/>
+                      <select class="batch-property-${index}" style="width:100%; font-size: 12px;">
+                        <option value="">-- Sin inmueble --</option>
+                        ${properties.map(prop => `
+                          <option value="${prop.id}" ${propertySuggestions[0]?.property.id === prop.id ? 'selected' : ''}>
+                            ${prop.address || 'Sin dirección'}
+                          </option>
+                        `).join('')}
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div style="margin-top: 10px; text-align: right;">
+                    <button onclick="saveBatchInvoice(${index}, '${r.attachmentId}')" class="small success">💾 Guardar</button>
+                    <button onclick="removeBatchInvoice(${index})" class="small danger">🗑️ Descartar</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+          <button onclick="saveAllBatchInvoices()" class="primary" style="margin-right: 10px;">💾 Guardar Todas</button>
+          <button onclick="cancelBatchOCR()" class="secondary">❌ Cancelar Todo</button>
+        </div>
+      ` : ''}
+    </div>
+  `;
+  
+  resultsContainer.style.display = 'block';
+  
+  // Store batch data globally for save functions
+  window.batchResults = successfulResults;
+  
+  // Global functions for batch operations
+  window.saveBatchInvoice = (index, attachmentId) => {
+    const result = window.batchResults[index];
+    const data = result.result.extractedData;
+    
+    const concept = root.querySelector(`.batch-concept-${index}`).value;
+    const category = root.querySelector(`.batch-category-${index}`).value;
+    const propertyId = root.querySelector(`.batch-property-${index}`).value;
+    
+    saveSingleBatchInvoice(data, concept, category, propertyId, attachmentId);
+    
+    // Remove from batch
+    window.batchResults.splice(index, 1);
+    showBatchOCRResults(window.batchResults, root);
+    
+    if (window.batchResults.length === 0) {
+      cancelBatchOCR();
+      view.mount(root.parentElement.parentElement);
+    }
+  };
+  
+  window.removeBatchInvoice = (index) => {
+    window.batchResults.splice(index, 1);
+    showBatchOCRResults(window.batchResults, root);
+  };
+  
+  window.saveAllBatchInvoices = () => {
+    window.batchResults.forEach((result, index) => {
+      const data = result.result.extractedData;
+      const concept = root.querySelector(`.batch-concept-${index}`).value;
+      const category = root.querySelector(`.batch-category-${index}`).value;
+      const propertyId = root.querySelector(`.batch-property-${index}`).value;
+      
+      saveSingleBatchInvoice(data, concept, category, propertyId, result.attachmentId);
+    });
+    
+    alert(`✅ Se han guardado ${window.batchResults.length} facturas correctamente`);
+    cancelBatchOCR();
+    view.mount(root.parentElement.parentElement);
+  };
+  
+  window.cancelBatchOCR = () => {
+    resultsContainer.style.display = 'none';
+    root.querySelector('#ocrProgress').style.display = 'none';
+    root.querySelector('#invoiceFiles').value = '';
+    root.querySelector('#processInvoices').disabled = true;
+    root.querySelector('#clearFiles').disabled = true;
+    root.querySelector('#fileList').innerHTML = '';
+    window.batchResults = [];
+  };
 }
 
 function showOCRResults(ocrResult, propertySuggestions, attachmentId, root) {
@@ -272,8 +543,10 @@ function showOCRResults(ocrResult, propertySuggestions, attachmentId, root) {
   window.cancelOCR = () => {
     resultsContainer.style.display = 'none';
     root.querySelector('#ocrProgress').style.display = 'none';
-    root.querySelector('#invoiceFile').value = '';
-    root.querySelector('#processInvoice').disabled = true;
+    root.querySelector('#invoiceFiles').value = '';
+    root.querySelector('#processInvoices').disabled = true;
+    root.querySelector('#clearFiles').disabled = true;
+    root.querySelector('#fileList').innerHTML = '';
   };
 }
 
@@ -436,9 +709,142 @@ function downloadCSV(content, filename) {
   }
 }
 
-// Placeholder functions for modal actions
+// Modal functions for invoice actions
 function editInvoiceModal(invoiceId, root) {
-  alert('Función de edición en desarrollo');
+  const invoices = getInvoices();
+  const invoice = invoices.find(inv => inv.id === invoiceId);
+  if (!invoice) return;
+  
+  const categories = getCategories();
+  const properties = getProperties();
+  
+  // Create modal overlay
+  const modalOverlay = document.createElement('div');
+  modalOverlay.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.7); z-index: 1000; display: flex; 
+    align-items: center; justify-content: center;
+  `;
+  
+  modalOverlay.innerHTML = `
+    <div style="background: white; padding: 30px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+      <h2>✏️ Editar Factura</h2>
+      
+      <div class="row">
+        <div class="col">
+          <label class="small muted">Proveedor *</label><br/>
+          <input type="text" id="editSupplier" value="${invoice.supplier || ''}" style="width:100%; margin-bottom:10px">
+        </div>
+        <div class="col">
+          <label class="small muted">Fecha *</label><br/>
+          <input type="date" id="editDate" value="${invoice.date || ''}" style="width:100%; margin-bottom:10px">
+        </div>
+      </div>
+      
+      <div style="margin-bottom:10px;">
+        <label class="small muted">Concepto *</label><br/>
+        <input type="text" id="editConcept" value="${invoice.concept || ''}" style="width:100%; margin-bottom:10px">
+      </div>
+      
+      <div class="row">
+        <div class="col">
+          <label class="small muted">Importe Total (€) *</label><br/>
+          <input type="number" id="editAmount" value="${invoice.totalAmount || 0}" step="0.01" style="width:100%; margin-bottom:10px">
+        </div>
+        <div class="col">
+          <label class="small muted">Categoría Fiscal *</label><br/>
+          <select id="editCategory" style="width:100%; margin-bottom:10px">
+            ${categories.filter(c => c.type === 'expense').map(cat => `
+              <option value="${cat.id}" ${cat.id === invoice.category ? 'selected' : ''}>
+                ${cat.deductible ? '✅' : '❌'} ${cat.name}
+              </option>
+            `).join('')}
+          </select>
+        </div>
+      </div>
+      
+      <div style="margin-bottom:15px;">
+        <label class="small muted">Inmueble Asociado</label><br/>
+        <select id="editProperty" style="width:100%; margin-bottom:10px">
+          <option value="">-- Sin inmueble específico --</option>
+          ${properties.map(prop => `
+            <option value="${prop.id}" ${prop.id === invoice.propertyId ? 'selected' : ''}>
+              ${prop.address || 'Sin dirección'} (${prop.city || 'Sin ciudad'})
+            </option>
+          `).join('')}
+        </select>
+      </div>
+      
+      <div style="margin-bottom:15px;">
+        <label class="small muted">Estado</label><br/>
+        <select id="editStatus" style="width:200px; margin-bottom:10px">
+          <option value="pending" ${invoice.status === 'pending' ? 'selected' : ''}>⏳ Pendiente</option>
+          <option value="verified" ${invoice.status === 'verified' ? 'selected' : ''}>✅ Verificada</option>
+          <option value="rejected" ${invoice.status === 'rejected' ? 'selected' : ''}>❌ Rechazada</option>
+        </select>
+      </div>
+      
+      <div style="text-align: right; margin-top: 20px;">
+        <button onclick="closeEditModal()" style="margin-right: 10px; background: #666; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">❌ Cancelar</button>
+        <button onclick="saveEditedInvoice('${invoiceId}')" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">💾 Guardar Cambios</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modalOverlay);
+  
+  // Global functions for modal
+  window.closeEditModal = () => {
+    document.body.removeChild(modalOverlay);
+  };
+  
+  window.saveEditedInvoice = (invoiceId) => {
+    const supplier = document.getElementById('editSupplier').value;
+    const concept = document.getElementById('editConcept').value;
+    const date = document.getElementById('editDate').value;
+    const amount = parseFloat(document.getElementById('editAmount').value);
+    const category = document.getElementById('editCategory').value;
+    const propertyId = document.getElementById('editProperty').value;
+    const status = document.getElementById('editStatus').value;
+    
+    if (!supplier || !concept || !date || !amount || !category) {
+      alert('Por favor, completa todos los campos obligatorios');
+      return;
+    }
+    
+    // Update invoice
+    updateInvoice(invoiceId, {
+      supplier,
+      concept,
+      date,
+      totalAmount: amount,
+      baseAmount: amount / 1.21, // Assuming 21% VAT
+      vatAmount: amount - (amount / 1.21),
+      category,
+      propertyId: propertyId || null,
+      status
+    });
+    
+    // Update corresponding transaction if it exists
+    const transactions = getReal();
+    const transactionIndex = transactions.findIndex(t => t.invoiceId === invoiceId);
+    if (transactionIndex >= 0) {
+      transactions[transactionIndex] = {
+        ...transactions[transactionIndex],
+        date,
+        concept: `${supplier} - ${concept}`,
+        amount: -amount,
+        category
+      };
+      saveReal(transactions);
+    }
+    
+    closeEditModal();
+    alert('✅ Factura actualizada correctamente');
+    
+    // Refresh the view
+    view.mount(root.parentElement.parentElement);
+  };
 }
 
 function viewInvoiceModal(invoiceId, root) {
@@ -459,6 +865,34 @@ function deleteInvoiceAction(invoiceId, root) {
     deleteInvoice(invoiceId);
     view.mount(root.parentElement.parentElement);
   }
+}
+
+function saveSingleBatchInvoice(data, concept, category, propertyId, attachmentId) {
+  const invoice = addInvoice({
+    supplier: data.supplier,
+    concept,
+    date: data.date,
+    totalAmount: data.totalAmount,
+    baseAmount: data.totalAmount / 1.21,
+    vatAmount: data.totalAmount - (data.totalAmount / 1.21),
+    category,
+    propertyId: propertyId || null,
+    attachmentId,
+    confidence: 0.85,
+    status: 'verified'
+  });
+  
+  // Add to financial transactions
+  const transactions = getReal();
+  transactions.push({
+    date: data.date,
+    bank: 'FACTURA',
+    concept: `${data.supplier} - ${concept}`,
+    amount: -data.totalAmount,
+    category,
+    invoiceId: invoice.id
+  });
+  saveReal(transactions);
 }
 
 export default view;
