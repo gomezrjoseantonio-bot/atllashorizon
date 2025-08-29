@@ -57,7 +57,10 @@ function renderCompactLoansList(loans, accounts, properties) {
                 <div style="font-size: 11px; color: var(--text-secondary);">Meses restantes</div>
               </div>
               <div style="text-align: center; padding: 10px; background: var(--header-bg); border-radius: 6px;">
-                <div style="font-size: 16px; font-weight: 600; color: ${account?.color || var(--text-secondary)};">${account?.name || 'N/A'}</div>
+                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">
+                  ${account?.logo ? `<img src="${account.logo}" alt="${account.name}" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;">` : ''}
+                  <div style="font-size: 16px; font-weight: 600; color: ${account?.color || var(--text-secondary)};">${account?.name || 'N/A'}</div>
+                </div>
                 <div style="font-size: 11px; color: var(--text-secondary);">Banco</div>
               </div>
             </div>

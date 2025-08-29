@@ -26,13 +26,24 @@ const view = {
             <button id="apply" class="primary">Aplicar</button>
           </div>
           <div class="col">
-            <h2>Cuentas bancarias</h2>
-            <div class="grid"><table id="acct"><thead><tr><th>ID</th><th>Nombre</th><th>Umbral</th><th></th></tr></thead><tbody></tbody></table></div>
-            <div style="margin-top:6px">
-              <input placeholder="ID" id="id" style="width:110px">
-              <input placeholder="Nombre" id="name" style="width:180px">
-              <input placeholder="Umbral" id="thr" type="number" style="width:110px">
-              <button id="add" class="primary">Añadir</button>
+            <h2 style="font-size: 16px; font-weight: 500; margin: 0 0 15px 0;">Cuentas bancarias</h2>
+            <div class="grid"><table id="acct"><thead><tr><th>Logo</th><th>ID</th><th>Nombre</th><th>Umbral</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div style="margin-top:15px; padding: 15px; background: var(--header-bg); border-radius: 8px;">
+              <h3 style="font-size: 14px; font-weight: 500; margin: 0 0 10px 0;">Añadir nuevo banco</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <input placeholder="ID (ej: SANTANDER)" id="id" style="width:100%">
+                <input placeholder="Nombre" id="name" style="width:100%">
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <input placeholder="Umbral €" id="thr" type="number" style="width:100%">
+                <input placeholder="Color #HEX" id="color" style="width:100%">
+              </div>
+              <div style="margin-bottom: 10px;">
+                <label style="font-size: 12px; color: var(--text-secondary);">Logotipo del banco</label>
+                <input type="file" id="logoFile" accept="image/*" style="width:100%; margin-bottom: 5px;">
+                <input placeholder="O URL del logotipo" id="logoUrl" style="width:100%;">
+              </div>
+              <button id="add" class="primary" style="width: 100%;">Añadir banco</button>
             </div>
           </div>
         </div>
@@ -75,11 +86,26 @@ const view = {
     
     function draw(){
       const a = getAccounts();
-      tbody.innerHTML = a.map((r,i)=>`<tr><td>${r.id}</td><td>${r.name}</td><td>${r.threshold}</td>
-      <td><button data-i="${i}" class="del">Borrar</button></td></tr>`).join('');
+      tbody.innerHTML = a.map((r,i)=>`<tr>
+        <td>
+          ${r.logo ? `<img src="${r.logo}" alt="${r.name}" style="width: 24px; height: 24px; object-fit: contain; border-radius: 2px;">` : `<div style="width: 24px; height: 24px; background: ${r.color || '#ccc'}; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white;">${r.name.charAt(0)}</div>`}
+        </td>
+        <td>${r.id}</td>
+        <td>${r.name}</td>
+        <td>${r.threshold}€</td>
+        <td>
+          <button onclick="editBank(${i})" class="small secondary" style="margin-right: 5px;">✏</button>
+          <button data-i="${i}" class="del small danger">🗑</button>
+        </td>
+      </tr>`).join('');
       tbody.querySelectorAll('.del').forEach(b=> b.onclick = ()=>{
         const idx = +b.getAttribute('data-i');
-        const arr = getAccounts(); arr.splice(idx,1); saveAccounts(arr); draw();
+        const arr = getAccounts(); 
+        if(confirm(`¿Eliminar banco "${arr[idx].name}"?`)) {
+          arr.splice(idx,1); 
+          saveAccounts(arr); 
+          draw();
+        }
       });
     }
     
@@ -121,13 +147,176 @@ const view = {
     drawCategories();
     drawBudgets();
 
-    root.querySelector('#add').onclick = ()=>{
-      const id = root.querySelector('#id').value.trim();
+    // Helper function to convert file to base64
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    root.querySelector('#add').onclick = async ()=>{
+      const id = root.querySelector('#id').value.trim().toUpperCase();
       const name = root.querySelector('#name').value.trim();
       const thr = parseFloat(root.querySelector('#thr').value||0);
-      if(!id || !name) return;
-      const arr = getAccounts(); arr.push({id, name, threshold:thr}); saveAccounts(arr); draw();
-      root.querySelector('#id').value=''; root.querySelector('#name').value=''; root.querySelector('#thr').value='';
+      const color = root.querySelector('#color').value.trim() || '#666666';
+      const logoFile = root.querySelector('#logoFile').files[0];
+      const logoUrl = root.querySelector('#logoUrl').value.trim();
+      
+      if(!id || !name) {
+        alert('ID y nombre son obligatorios');
+        return;
+      }
+      
+      // Check if ID already exists
+      const existingAccounts = getAccounts();
+      if(existingAccounts.find(acc => acc.id === id)) {
+        alert('Ya existe un banco con ese ID');
+        return;
+      }
+      
+      let logo = logoUrl;
+      
+      // If user uploaded a file, convert to base64
+      if(logoFile) {
+        try {
+          logo = await fileToBase64(logoFile);
+        } catch(error) {
+          alert('Error al procesar el archivo de imagen');
+          return;
+        }
+      }
+      
+      const newBank = {
+        id, 
+        name, 
+        threshold: thr,
+        color: color,
+        logo: logo || null
+      };
+      
+      const arr = getAccounts(); 
+      arr.push(newBank); 
+      saveAccounts(arr); 
+      draw();
+      
+      // Clear form
+      root.querySelector('#id').value=''; 
+      root.querySelector('#name').value=''; 
+      root.querySelector('#thr').value='';
+      root.querySelector('#color').value='';
+      root.querySelector('#logoFile').value='';
+      root.querySelector('#logoUrl').value='';
+      
+      alert(`Banco "${name}" añadido correctamente`);
+    };
+    
+    // Global function for editing banks
+    window.editBank = function(index) {
+      const banks = getAccounts();
+      const bank = banks[index];
+      if(!bank) return;
+      
+      // Create edit modal
+      const modalOverlay = document.createElement('div');
+      modalOverlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.7); z-index: 1000; display: flex; 
+        align-items: center; justify-content: center;
+      `;
+      
+      modalOverlay.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; width: 90%;">
+          <h2 style="margin: 0 0 20px 0; font-size: 16px; font-weight: 500;">Editar banco: ${bank.name}</h2>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="font-size: 12px; color: var(--text-secondary);">Nombre del banco</label>
+            <input type="text" id="editName" value="${bank.name}" style="width: 100%; margin-top: 5px;">
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+              <label style="font-size: 12px; color: var(--text-secondary);">Umbral (€)</label>
+              <input type="number" id="editThreshold" value="${bank.threshold}" style="width: 100%; margin-top: 5px;">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: var(--text-secondary);">Color</label>
+              <input type="text" id="editColor" value="${bank.color || '#666666'}" style="width: 100%; margin-top: 5px;">
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="font-size: 12px; color: var(--text-secondary);">Logotipo actual</label>
+            <div style="margin: 5px 0;">
+              ${bank.logo ? `<img src="${bank.logo}" alt="${bank.name}" style="width: 48px; height: 48px; object-fit: contain; border: 1px solid var(--border); border-radius: 4px;">` : '<div style="color: var(--text-secondary);">Sin logotipo</div>'}
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="font-size: 12px; color: var(--text-secondary);">Nuevo logotipo</label>
+            <input type="file" id="editLogoFile" accept="image/*" style="width: 100%; margin: 5px 0;">
+            <input type="text" id="editLogoUrl" placeholder="O URL del logotipo" style="width: 100%;">
+          </div>
+          
+          <div style="text-align: right;">
+            <button onclick="closeEditModal()" class="secondary" style="margin-right: 10px;">Cancelar</button>
+            <button onclick="saveEditedBank(${index})" class="primary">Guardar cambios</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modalOverlay);
+      
+      // Modal functions
+      window.closeEditModal = () => {
+        document.body.removeChild(modalOverlay);
+      };
+      
+      window.saveEditedBank = async (bankIndex) => {
+        const name = document.getElementById('editName').value.trim();
+        const threshold = parseFloat(document.getElementById('editThreshold').value || 0);
+        const color = document.getElementById('editColor').value.trim();
+        const logoFile = document.getElementById('editLogoFile').files[0];
+        const logoUrl = document.getElementById('editLogoUrl').value.trim();
+        
+        if(!name) {
+          alert('El nombre es obligatorio');
+          return;
+        }
+        
+        let logo = bank.logo; // Keep existing logo by default
+        
+        // If new logo file uploaded
+        if(logoFile) {
+          try {
+            logo = await fileToBase64(logoFile);
+          } catch(error) {
+            alert('Error al procesar el archivo de imagen');
+            return;
+          }
+        }
+        // If new logo URL provided
+        else if(logoUrl) {
+          logo = logoUrl;
+        }
+        
+        // Update bank
+        const banks = getAccounts();
+        banks[bankIndex] = {
+          ...banks[bankIndex],
+          name,
+          threshold,
+          color,
+          logo
+        };
+        
+        saveAccounts(banks);
+        draw();
+        closeEditModal();
+        alert(`Banco "${name}" actualizado correctamente`);
+      };
     };
     
     root.querySelector('#addCat').onclick = ()=>{
