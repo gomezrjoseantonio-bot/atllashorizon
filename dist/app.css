@@ -1,19 +1,27 @@
 
 /* Import Inter font for ATLAS brand typography */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 :root{
-  --bg:#F5F6F7; /* ATLAS light gray */
-  --fg:#1A3C68; /* ATLAS deep blue */
-  --muted:#6b7280;
-  --card:#ffffff;
-  --border:#e5e7eb;
-  --accent:#37C785; /* ATLAS mint green */
-  --primary:#1A3C68; /* ATLAS deep blue for primary elements */
-  --success:#37C785; /* Green for positive cashflow */
-  --danger:#ef4444; /* Red for negative/alerts */
-  --warning:#f59e0b; /* Amber for warnings */
-  --shadow:0 4px 22px rgba(0,0,0,.06); /* Soft shadows per brand guidelines */
+  /* ATLAS Official Color Palette */
+  --primary:#1E3A8A; /* Primary blue (elegant navy) */
+  --secondary:#10B981; /* Secondary green (positive actions) */
+  --error:#EF4444; /* Error/alert red */
+  --bg:#FFFFFF; /* Pure white background */
+  --header-bg:#F8F9FA; /* Header and neutral zones (light blue-gray) */
+  --text-primary:#111827; /* Primary text (almost black) */
+  --text-secondary:#6B7280; /* Secondary text (medium gray) */
+  --border:#E5E7EB; /* Light gray borders */
+  
+  /* Legacy aliases for compatibility */
+  --fg:var(--text-primary);
+  --muted:var(--text-secondary);
+  --card:var(--bg);
+  --accent:var(--secondary);
+  --success:var(--secondary);
+  --danger:var(--error);
+  --warning:#F9A825; /* Amber for warnings */
+  --shadow:0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 body.theme-dark{
   --bg:#0b1020;
@@ -27,46 +35,114 @@ html,body{height:100%}
 body{
   margin:0;
   background:var(--bg);
-  color:var(--fg);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color:var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
   font-weight: 400;
-  font-size: 16px;
+  font-size: 14px; /* ATLAS standard body text size */
   line-height: 1.5;
 }
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
-.topbar{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:10px 16px;box-shadow:var(--shadow)}
+.topbar{position:sticky;top:0;z-index:10;background:var(--header-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:10px 16px;box-shadow:var(--shadow)}
 .brand{display:flex;align-items:center;gap:10px}
-.brand strong{font-weight:700;font-size:18px;color:var(--primary)}
+.brand strong{font-weight:600;font-size:20px;color:var(--primary)} /* H1 equivalent */
 .logo{width:28px;height:28px}
 .menu{display:flex;gap:10px}
-.menu a{padding:8px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--fg);font-weight:600;transition:all 0.2s ease;box-shadow:var(--shadow)}
-.menu a:hover{border-color:var(--accent);transform:translateY(-1px)}
-.menu a.active{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent), var(--shadow);background:var(--primary);color:white}
+.menu a{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text-primary);font-weight:500;font-size:14px;transition:all 0.2s ease;box-shadow:var(--shadow)}
+.menu a:hover{border-color:var(--primary);transform:translateY(-1px)}
+.menu a.active{border-color:var(--primary);background:var(--primary);color:white}
 .container{max-width:1100px;margin:24px auto;padding:0 16px}
 .footer{display:flex;gap:8px;justify-content:space-between;padding:16px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);transition:all 0.2s ease}
-.card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:20px;box-shadow:var(--shadow);transition:all 0.2s ease}
+.card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
 .row{display:flex;gap:20px;flex-wrap:wrap}
 .col{flex:1 1 300px;min-width:280px}
-h1{font-size:32px;font-weight:700;margin:0 0 8px 0;color:var(--primary)}
-h2{font-size:20px;font-weight:600;margin:0 0 12px 0;color:var(--primary)}
-h3{font-size:18px;font-weight:600;margin:0 0 8px 0}
-.muted{color:var(--muted)}
-.kpi{font-weight:700;font-size:28px}
+/* Typography Standards per ATLAS brand guidelines */
+h1 { font-size: 20px; font-weight: 600; margin: 0 0 8px 0; color: var(--text-primary); }
+h2 { font-size: 16px; font-weight: 500; margin: 0 0 12px 0; color: var(--text-primary); }
+h3 { font-size: 14px; font-weight: 500; margin: 0 0 8px 0; color: var(--text-primary); }
+
+/* Legacy classes for compatibility */
+.h1{font-size:20px;font-weight:600;margin:0 0 8px 0;color:var(--text-primary)}
+.h2{font-size:16px;font-weight:500;margin:0 0 12px 0;color:var(--text-primary)}
+.h3{font-size:14px;font-weight:500;margin:0 0 8px 0;color:var(--text-primary)}
+.muted{color:var(--text-secondary)}
+.kpi{font-weight:600;font-size:28px}
+
+/* Button styles per ATLAS standards */
+button, .button {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow);
+}
+
+button:hover, .button:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* Primary buttons */
+button.primary, .button.primary {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+button.primary:hover, .button.primary:hover {
+  background: #1E40AF; /* Slightly darker primary */
+}
+
+/* Secondary buttons */
+button.secondary, .button.secondary {
+  background: white;
+  color: var(--primary);
+  border-color: var(--border);
+}
+
+button.secondary:hover, .button.secondary:hover {
+  background: var(--header-bg);
+}
+
+/* Success buttons */
+button.success, .button.success {
+  background: var(--secondary);
+  color: white;
+  border-color: var(--secondary);
+}
+
+/* Danger buttons */
+button.danger, .button.danger {
+  background: var(--error);
+  color: white;
+  border-color: var(--error);
+}
+
+/* Warning buttons */
+button.warning, .button.warning {
+  background: var(--warning);
+  color: white;
+  border-color: var(--warning);
+}
+
+/* Small buttons */
+button.small, .button.small {
+  font-size: 12px;
+  padding: 4px 8px;
+}
 .badge{display:inline-block;padding:4px 12px;border-radius:16px;font-size:12px;font-weight:600;border:1px solid var(--border);color:var(--muted)}
 .badge.success{background:color-mix(in srgb, var(--success) 15%, transparent);color:var(--success);border-color:var(--success)}
 .badge.danger{background:color-mix(in srgb, var(--danger) 15%, transparent);color:var(--danger);border-color:var(--danger)}
 .badge.warning{background:color-mix(in srgb, var(--warning) 15%, transparent);color:var(--warning);border-color:var(--warning)}
-input,select,button{font:inherit;color:inherit}
-input,select{padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--card);transition:all 0.2s ease}
-input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent)}
-button{padding:12px 20px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;font-weight:600;transition:all 0.2s ease;box-shadow:var(--shadow)}
-button:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
-button.primary{background:var(--primary);color:white;border-color:var(--primary)}
-button.primary:hover{background:color-mix(in srgb, var(--primary) 90%, black)}
-button.secondary{background:transparent;color:var(--primary);border-color:var(--accent)}
-button.secondary:hover{background:color-mix(in srgb, var(--accent) 10%, transparent)}
+input,select{padding:8px 12px;border:1px solid var(--border);border-radius:6px;background:white;font-family: 'Inter', system-ui, sans-serif;font-size:14px;transition:all 0.2s ease}
+input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px color-mix(in srgb, var(--primary) 25%, transparent)}
 .grid{overflow:auto;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
 table{border-collapse:collapse;width:100%}
 th,td{padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}

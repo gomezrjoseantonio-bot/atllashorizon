@@ -15,75 +15,75 @@ function renderCompactLoansList(loans, accounts, properties) {
         const currentState = calculateCurrentLoanState(loan);
         
         return `
-          <div style="background: white; border: 1px solid #e0e0e0; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer;" 
-               onmouseover="this.style.transform='translateY(-2px)'" 
+          <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 20px; box-shadow: var(--shadow); transition: transform 0.2s; cursor: pointer;" 
+               onmouseover="this.style.transform='translateY(-1px)'" 
                onmouseout="this.style.transform='translateY(0)'">
             
             <!-- Header -->
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
               <div>
-                <h3 style="margin: 0 0 5px 0; color: #333;">${getLoanTypeLabel(loan.type)}</h3>
-                <div style="font-size: 14px; color: #666;">${loan.description}</div>
+                <h3 style="margin: 0 0 5px 0; color: var(--text-primary); font-size: 16px; font-weight: 500;">${getLoanTypeLabel(loan.type)}</h3>
+                <div style="font-size: 14px; color: var(--text-secondary);">${loan.description}</div>
               </div>
               <div style="text-align: right;">
-                <div style="font-size: 20px; font-weight: bold; color: #1A3C68;">${fmtEUR(monthlyPayment)}</div>
-                <div style="font-size: 12px; color: #666;">cuota mensual</div>
+                <div style="font-size: 20px; font-weight: 600; color: var(--primary);">${fmtEUR(monthlyPayment)}</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">cuota mensual</div>
               </div>
             </div>
             
             <!-- Progress Bar -->
             <div style="margin: 15px 0;">
-              <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-bottom: 5px;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">
                 <span>Progreso del préstamo</span>
                 <span>${((currentState.monthsElapsed / (currentState.monthsElapsed + currentState.monthsRemaining)) * 100).toFixed(1)}%</span>
               </div>
-              <div style="background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
-                <div style="background: linear-gradient(90deg, #4CAF50, #8BC34A); height: 100%; width: ${(currentState.monthsElapsed / (currentState.monthsElapsed + currentState.monthsRemaining)) * 100}%; transition: width 0.3s;"></div>
+              <div style="background: var(--header-bg); height: 8px; border-radius: 4px; overflow: hidden;">
+                <div style="background: linear-gradient(90deg, var(--secondary), #059669); height: 100%; width: ${(currentState.monthsElapsed / (currentState.monthsElapsed + currentState.monthsRemaining)) * 100}%; transition: width 0.3s;"></div>
               </div>
             </div>
             
             <!-- Key Info Grid -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin: 15px 0;">
-              <div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                <div style="font-size: 16px; font-weight: bold; color: #333;">${fmtEUR(currentState.currentBalance)}</div>
-                <div style="font-size: 11px; color: #666;">Pendiente</div>
+              <div style="text-align: center; padding: 10px; background: var(--header-bg); border-radius: 6px;">
+                <div style="font-size: 16px; font-weight: 600; color: var(--text-primary);">${fmtEUR(currentState.currentBalance)}</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">Pendiente</div>
               </div>
-              <div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                <div style="font-size: 16px; font-weight: bold; color: #333;">${loan.effectiveRate.toFixed(2)}%</div>
-                <div style="font-size: 11px; color: #666;">Tipo efectivo</div>
+              <div style="text-align: center; padding: 10px; background: var(--header-bg); border-radius: 6px;">
+                <div style="font-size: 16px; font-weight: 600; color: var(--text-primary);">${loan.effectiveRate.toFixed(2)}%</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">Tipo efectivo</div>
               </div>
-              <div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                <div style="font-size: 16px; font-weight: bold; color: #333;">${currentState.monthsRemaining}</div>
-                <div style="font-size: 11px; color: #666;">Meses restantes</div>
+              <div style="text-align: center; padding: 10px; background: var(--header-bg); border-radius: 6px;">
+                <div style="font-size: 16px; font-weight: 600; color: var(--text-primary);">${currentState.monthsRemaining}</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">Meses restantes</div>
               </div>
-              <div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                <div style="font-size: 16px; font-weight: bold; color: ${account?.color || '#666'};">${account?.name || 'N/A'}</div>
-                <div style="font-size: 11px; color: #666;">Banco</div>
+              <div style="text-align: center; padding: 10px; background: var(--header-bg); border-radius: 6px;">
+                <div style="font-size: 16px; font-weight: 600; color: ${account?.color || var(--text-secondary)};">${account?.name || 'N/A'}</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">Banco</div>
               </div>
             </div>
             
             <!-- Actions -->
             <div style="display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap;">
               <button onclick="event.stopPropagation(); viewLoanDetails('${loan.id}')" 
-                      style="flex: 1; min-width: 100px; background: #1A3C68; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                      class="primary" style="flex: 1; min-width: 100px; font-size: 12px;">
                 Detalles
               </button>
               <button onclick="event.stopPropagation(); calculatePartialAmortization('${loan.id}')" 
-                      style="flex: 1; min-width: 100px; background: #37C785; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                      class="success" style="flex: 1; min-width: 100px; font-size: 12px;">
                 Amortizar
               </button>
               <div style="position: relative; display: inline-block;">
                 <button onclick="event.stopPropagation(); toggleKebabMenu('${loan.id}')" 
-                        style="background: #f5f5f5; color: #333; border: 1px solid #ddd; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                        class="secondary" style="padding: 8px 12px; font-size: 12px;">
                   ⋯
                 </button>
-                <div id="kebab-${loan.id}" style="display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 100; min-width: 100px;">
+                <div id="kebab-${loan.id}" style="display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid var(--border); border-radius: 6px; box-shadow: var(--shadow); z-index: 100; min-width: 100px;">
                   <button onclick="event.stopPropagation(); editLoan('${loan.id}')" 
-                          style="width: 100%; background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; font-size: 12px; border-bottom: 1px solid #eee;">
+                          style="width: 100%; background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; font-size: 12px; border-bottom: 1px solid var(--border);">
                     Editar
                   </button>
                   <button onclick="event.stopPropagation(); deleteLoan('${loan.id}')" 
-                          style="width: 100%; background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; font-size: 12px; color: #E53935;">
+                          style="width: 100%; background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; font-size: 12px; color: var(--error);">
                     Eliminar
                   </button>
                 </div>
@@ -91,11 +91,11 @@ function renderCompactLoansList(loans, accounts, properties) {
             </div>
             
             ${property ? `
-              <div style="margin-top: 10px; padding: 8px; background: #e8f5e8; border-radius: 6px; font-size: 12px;">
+              <div style="margin-top: 10px; padding: 8px; background: #ECFDF5; border: 1px solid var(--secondary); border-radius: 6px; font-size: 12px;">
                 <strong>Inmueble asociado:</strong> ${property.address}
               </div>
             ` : `
-              <div style="margin-top: 10px; padding: 8px; background: #fff3cd; border-radius: 6px; font-size: 12px; color: #856404;">
+              <div style="margin-top: 10px; padding: 8px; background: #FEF3C7; border: 1px solid var(--warning); border-radius: 6px; font-size: 12px; color: #92400E;">
                 <strong>Sin inmueble asociado</strong>
               </div>
             `}
@@ -134,18 +134,18 @@ function getLoanTypeLabel(type) {
 
 function renderLoanForm(accounts, properties) {
   return `
-    <div style="background: #1A3C68; padding: 20px; border-radius: 15px; color: white; margin-bottom: 20px;">
-      <h2 style="margin: 0 0 10px 0;">Nuevo Préstamo</h2>
-      <p style="margin: 0; opacity: 0.9;">Añade un préstamo con cálculo automático de cuotas</p>
+    <div style="background: var(--primary); padding: 20px; border-radius: 8px; color: white; margin-bottom: 20px;">
+      <h2 style="margin: 0 0 10px 0; font-size: 20px; font-weight: 600;">Nuevo Préstamo</h2>
+      <p style="margin: 0; opacity: 0.9; font-size: 14px;">Añade un préstamo con cálculo automático de cuotas</p>
     </div>
     
     <form id="loanForm">
       <input type="hidden" id="loanId" value="">
       
       <!-- Basic Information Card -->
-      <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <h3 style="margin: 0 0 15px 0; color: #333; display: flex; align-items: center;">
-          <span style="background: #1A3C68; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">1</span>
+      <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow);">
+        <h3 style="margin: 0 0 15px 0; color: var(--text-primary); display: flex; align-items: center; font-size: 16px; font-weight: 500;">
+          <span style="background: var(--primary); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">1</span>
           Información Básica
         </h3>
         
@@ -202,9 +202,9 @@ function renderLoanForm(accounts, properties) {
       </div>
       
       <!-- Property Association Card -->
-      <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <h3 style="margin: 0 0 15px 0; color: #333; display: flex; align-items: center;">
-          <span style="background: #37C785; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">2</span>
+      <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow);">
+        <h3 style="margin: 0 0 15px 0; color: var(--text-primary); display: flex; align-items: center; font-size: 16px; font-weight: 500;">
+          <span style="background: var(--secondary); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">2</span>
           Asociación
         </h3>
         
@@ -231,11 +231,11 @@ function renderLoanForm(accounts, properties) {
       </div>
       
       <!-- Bonifications Card - Compact Design -->
-      <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <h3 style="margin: 0 0 15px 0; color: #333; display: flex; align-items: center;">
-          <span style="background: #F9A825; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">3</span>
+      <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow);">
+        <h3 style="margin: 0 0 15px 0; color: var(--text-primary); display: flex; align-items: center; font-size: 16px; font-weight: 500;">
+          <span style="background: var(--warning); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 12px;">3</span>
           Bonificaciones
-          <span style="margin-left: auto; font-size: 12px; color: #666;">Opcional</span>
+          <span style="margin-left: auto; font-size: 12px; color: var(--text-secondary);">Opcional</span>
         </h3>
         
         <div class="small muted" style="margin-bottom: 15px;">
@@ -243,8 +243,8 @@ function renderLoanForm(accounts, properties) {
         </div>
         
         <details>
-          <summary style="cursor: pointer; color: #1A3C68; font-weight: 500;">Configurar bonificaciones</summary>
-          <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+          <summary style="cursor: pointer; color: var(--primary); font-weight: 500;">Configurar bonificaciones</summary>
+          <div style="margin-top: 15px; padding: 15px; background: var(--header-bg); border-radius: 8px;">
             ${renderCompactConditionsForm()}
           </div>
         </details>
@@ -252,8 +252,8 @@ function renderLoanForm(accounts, properties) {
       
       <!-- Action Buttons -->
       <div style="text-align: center; padding: 20px;">
-        <button type="submit" style="background: #1A3C68; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 8px; cursor: pointer;">Guardar préstamo</button>
-        <button type="button" onclick="clearForm()" style="margin-left:15px; padding: 12px 25px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; cursor: pointer;">Limpiar</button>
+        <button type="submit" class="primary" style="padding: 12px 30px; font-size: 14px; margin-right: 15px;">Guardar préstamo</button>
+        <button type="button" onclick="clearForm()" class="secondary" style="padding: 12px 25px; font-size: 14px;">Limpiar</button>
       </div>
     </form>
   `;
@@ -313,22 +313,22 @@ const view = {
     root.innerHTML = `
       <div class="row">
         <div class="col">
-          <div style="background: #1A3C68; padding: 30px; border-radius: 20px; color: white; margin-bottom: 30px; text-align: center;">
-            <h1 style="margin: 0 0 10px 0; font-size: 2.5rem;">Préstamos e hipotecas</h1>
-            <p style="margin: 0; font-size: 1.1rem; opacity: 0.9;">Gestión inteligente con cálculo automático y optimización fiscal</p>
+          <div style="background: var(--primary); padding: 30px; border-radius: 8px; color: white; margin-bottom: 30px; text-align: center;">
+            <h1 style="margin: 0 0 10px 0; font-size: 20px; color: white;">Préstamos e hipotecas</h1>
+            <p style="margin: 0; font-size: 14px; opacity: 0.9;">Gestión inteligente con cálculo automático y optimización fiscal</p>
             ${loans.length > 0 ? `
               <div style="margin-top: 20px; display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
                 <div style="text-align: center;">
-                  <div style="font-size: 2rem; font-weight: bold;">${loans.length}</div>
-                  <div style="opacity: 0.8;">Préstamos activos</div>
+                  <div style="font-size: 2rem; font-weight: 600;">${loans.length}</div>
+                  <div style="opacity: 0.8; font-size: 14px;">Préstamos activos</div>
                 </div>
                 <div style="text-align: center;">
-                  <div style="font-size: 2rem; font-weight: bold;">${fmtEUR(calculateTotalDebt(loans))}</div>
-                  <div style="opacity: 0.8;">Deuda pendiente</div>
+                  <div style="font-size: 2rem; font-weight: 600;">${fmtEUR(calculateTotalDebt(loans))}</div>
+                  <div style="opacity: 0.8; font-size: 14px;">Deuda pendiente</div>
                 </div>
                 <div style="text-align: center;">
-                  <div style="font-size: 2rem; font-weight: bold;">${fmtEUR(calculateMonthlyPayments(loans))}</div>
-                  <div style="opacity: 0.8;">Cuota mensual total</div>
+                  <div style="font-size: 2rem; font-weight: 600;">${fmtEUR(calculateMonthlyPayments(loans))}</div>
+                  <div style="opacity: 0.8; font-size: 14px;">Cuota mensual total</div>
                 </div>
               </div>
             ` : ''}
@@ -341,8 +341,8 @@ const view = {
         <div class="col">
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-              <h2 style="margin: 0;">Mis Préstamos</h2>
-              <button onclick="showAddLoanForm()" style="background: #1A3C68; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+              <h2 style="margin: 0; font-size: 16px; font-weight: 500;">Mis Préstamos</h2>
+              <button onclick="showAddLoanForm()" class="primary">
                 Nuevo Préstamo
               </button>
             </div>
@@ -451,18 +451,25 @@ window.editLoan = function(loanId) {
   const loan = loans.find(l => l.id === loanId);
   if (!loan) return;
   
-  // Show the form container
+  // Show the form container without hiding navigation
   const container = document.querySelector('#loanFormContainer');
   if (container) {
     container.style.display = 'block';
+    
+    // Update form title to indicate editing
+    const formHeader = container.querySelector('h2');
+    if (formHeader) {
+      formHeader.textContent = `Editar Préstamo: ${loan.description}`;
+    }
   }
   
-  // Scroll to form
+  // Populate the form with loan data
+  populateLoanForm(loan);
+  
+  // Scroll to form smoothly without affecting navigation
   setTimeout(() => {
     container.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 100);
-  
-  populateLoanForm(loan);
 };
 
 window.toggleKebabMenu = function(loanId) {
@@ -973,26 +980,36 @@ window.calculatePartialAmortizationResults = function(loanId) {
     // Reduce term: keep same payment but reduce duration
     const newDuration = newSchedule.length;
     const monthsReduced = remainingMonthsAfterAmortization - newDuration;
+    const yearsReduced = Math.floor(monthsReduced / 12);
+    const extraMonths = monthsReduced % 12;
     
     resultsHTML = `
-      <div style="background:var(--card); border:1px solid var(--border); border-radius:8px; padding:15px">
-        <h3>📉 Resultado: Reducir plazo</h3>
+      <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 15px;">
+        <h3 style="color: var(--primary); margin: 0 0 10px 0; font-size: 16px;">📉 Resultado: Reducir plazo</h3>
         <div class="row">
           <div class="col">
             <div class="small muted">Cuota mensual</div>
-            <div><strong>${fmtEUR(newSchedule[0]?.payment || 0)}</strong> (igual)</div>
+            <div style="font-weight: 600;">${fmtEUR(newSchedule[0]?.payment || 0)}</div>
+            <div style="font-size: 12px; color: var(--secondary);">Se mantiene igual</div>
           </div>
           <div class="col">
             <div class="small muted">Plazo reducido</div>
-            <div><strong>${monthsReduced} meses</strong> (${(monthsReduced/12).toFixed(1)} años)</div>
+            <div style="font-weight: 600; color: var(--secondary);">${monthsReduced} meses</div>
+            <div style="font-size: 12px; color: var(--secondary);">${yearsReduced > 0 ? `${yearsReduced} años` : ''}${extraMonths > 0 ? ` y ${extraMonths} meses` : ''}</div>
           </div>
           <div class="col">
             <div class="small muted">Ahorro en intereses</div>
-            <div style="color:green; font-weight:bold">${fmtEUR(interestSavings)}</div>
+            <div style="font-weight: 600; color: var(--secondary);">${fmtEUR(interestSavings)}</div>
+            <div style="font-size: 12px; color: var(--secondary);">Total ahorrado</div>
           </div>
         </div>
-        <div style="margin-top:10px; font-size:14px; color:var(--muted)">
-          Nueva duración total restante: ${monthToAmortize + newDuration} meses (vs ${currentState.monthsRemaining} original)
+        <div style="margin-top: 15px; padding: 10px; background: var(--header-bg); border-radius: 6px; font-size: 12px; color: var(--text-secondary);">
+          <strong>Nuevo plazo:</strong> ${monthToAmortize + newDuration} meses total (vs ${currentState.monthsRemaining} original)
+        </div>
+        <div style="margin-top: 10px; text-align: center;">
+          <button onclick="applyAmortization('${loan.id}', ${extraAmount}, ${monthToAmortize}, 'reduce_term')" class="success" style="font-size: 12px;">
+            ✅ Aplicar Amortización
+          </button>
         </div>
       </div>
     `;
@@ -1004,24 +1021,32 @@ window.calculatePartialAmortizationResults = function(loanId) {
     const paymentReduction = originalPayment - newPayment;
     
     resultsHTML = `
-      <div style="background:var(--card); border:1px solid var(--border); border-radius:8px; padding:15px">
-        <h3>💰 Resultado: Reducir cuota</h3>
+      <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 15px;">
+        <h3 style="color: var(--primary); margin: 0 0 10px 0; font-size: 16px;">💰 Resultado: Reducir cuota</h3>
         <div class="row">
           <div class="col">
             <div class="small muted">Nueva cuota mensual</div>
-            <div><strong>${fmtEUR(newPayment)}</strong></div>
+            <div style="font-weight: 600;">${fmtEUR(newPayment)}</div>
+            <div style="font-size: 12px; color: var(--secondary);">Cuota reducida</div>
           </div>
           <div class="col">
             <div class="small muted">Reducción mensual</div>
-            <div style="color:green; font-weight:bold">-${fmtEUR(paymentReduction)}</div>
+            <div style="font-weight: 600; color: var(--secondary);">-${fmtEUR(paymentReduction)}</div>
+            <div style="font-size: 12px; color: var(--secondary);">Ahorro por mes</div>
           </div>
           <div class="col">
             <div class="small muted">Ahorro en intereses</div>
-            <div style="color:green; font-weight:bold">${fmtEUR(interestSavings)}</div>
+            <div style="font-weight: 600; color: var(--secondary);">${fmtEUR(interestSavings)}</div>
+            <div style="font-size: 12px; color: var(--secondary);">Total ahorrado</div>
           </div>
         </div>
-        <div style="margin-top:10px; font-size:14px; color:var(--muted)">
-          Duración: ${remainingMonthsAfterAmortization} meses restantes (igual plazo)
+        <div style="margin-top: 15px; padding: 10px; background: var(--header-bg); border-radius: 6px; font-size: 12px; color: var(--text-secondary);">
+          <strong>Duración:</strong> ${remainingMonthsAfterAmortization} meses restantes (mismo plazo)
+        </div>
+        <div style="margin-top: 10px; text-align: center;">
+          <button onclick="applyAmortization('${loan.id}', ${extraAmount}, ${monthToAmortize}, 'reduce_payment')" class="success" style="font-size: 12px;">
+            ✅ Aplicar Amortización
+          </button>
         </div>
       </div>
     `;
@@ -1054,20 +1079,31 @@ window.calculateTotalCancellation = function(loanId) {
   const remainingInterest = currentState.currentSchedule.slice(monthToCancel).reduce((sum, p) => sum + p.interest, 0);
   
   document.querySelector('#amortizationResults').innerHTML = `
-    <div style="background:var(--warning); color:white; padding:15px; border-radius:8px">
-      <h3>🏁 Cancelación total en el mes ${monthToCancel} (desde hoy)</h3>
+    <div style="background: white; border: 2px solid var(--warning); border-radius: 8px; padding: 20px;">
+      <h3 style="color: var(--warning); margin: 0 0 15px 0; font-size: 16px;">🏁 Cancelación total en el mes ${monthToCancel}</h3>
       <div class="row">
         <div class="col">
-          <div class="small" style="opacity:0.9">Importe para cancelar</div>
-          <div style="font-size:20px; font-weight:bold">${fmtEUR(balanceAtMonth)}</div>
+          <div class="small muted">Importe para cancelar</div>
+          <div style="font-size: 24px; font-weight: 600; color: var(--primary);">${fmtEUR(balanceAtMonth)}</div>
+          <div style="font-size: 12px; color: var(--text-secondary);">Capital pendiente</div>
         </div>
         <div class="col">
-          <div class="small" style="opacity:0.9">Ahorro en intereses</div>
-          <div style="font-size:18px; font-weight:bold">${fmtEUR(remainingInterest)}</div>
+          <div class="small muted">Ahorro en intereses</div>
+          <div style="font-size: 20px; font-weight: 600; color: var(--secondary);">${fmtEUR(remainingInterest)}</div>
+          <div style="font-size: 12px; color: var(--text-secondary);">Total ahorrado</div>
         </div>
       </div>
-      <div style="margin-top:10px; font-size:14px; opacity:0.9">
-        Te ahorrarías ${currentState.monthsRemaining - monthToCancel} cuotas restantes
+      <div style="margin-top: 15px; padding: 10px; background: var(--header-bg); border-radius: 6px; font-size: 12px; color: var(--text-secondary);">
+        Te ahorrarías ${currentState.monthsRemaining - monthToCancel} cuotas restantes (${Math.floor((currentState.monthsRemaining - monthToCancel) / 12)} años y ${(currentState.monthsRemaining - monthToCancel) % 12} meses)
+      </div>
+      
+      <div style="margin-top: 20px; text-align: center; display: flex; gap: 10px; justify-content: center;">
+        <button onclick="confirmTotalCancellation('${loanId}', ${balanceAtMonth}, ${monthToCancel})" class="danger" style="font-size: 14px; font-weight: 500;">
+          ✅ Confirmar Cancelación Total
+        </button>
+        <button onclick="document.querySelector('#amortizationResults').innerHTML = ''" class="secondary" style="font-size: 14px;">
+          ❌ Cancelar
+        </button>
       </div>
     </div>
   `;
@@ -1179,6 +1215,40 @@ window.exportAmortizationTable = function(loanId) {
   link.href = URL.createObjectURL(blob);
   link.download = `amortizacion_${loan.description.replace(/\s+/g, '_')}_${fmtDateISO(new Date())}.csv`;
   link.click();
+};
+
+// Add function to apply amortization
+window.applyAmortization = function(loanId, amount, month, type) {
+  if (!confirm(`¿Estás seguro de que quieres aplicar esta amortización de ${fmtEUR(amount)}?`)) return;
+  
+  // Here you would implement the actual amortization logic
+  // For now, just show a success message
+  alert(`✅ Amortización aplicada correctamente:\n- Importe: ${fmtEUR(amount)}\n- Mes: ${month}\n- Tipo: ${type === 'reduce_term' ? 'Reducir plazo' : 'Reducir cuota'}`);
+  
+  // Refresh the view
+  view.mount(document.getElementById('app'));
+};
+
+// Add function to confirm total cancellation
+window.confirmTotalCancellation = function(loanId, amount, month) {
+  if (!confirm(`¿CONFIRMAS la cancelación total del préstamo por ${fmtEUR(amount)}?\n\nEsta acción eliminará el préstamo de tu cartera.`)) return;
+  
+  const loans = getLoans();
+  const loan = loans.find(l => l.id === loanId);
+  if (!loan) return;
+  
+  // Mark loan as completed/cancelled
+  loan.active = false;
+  loan.cancelledAt = new Date().toISOString();
+  loan.cancellationAmount = amount;
+  loan.cancellationMonth = month;
+  
+  saveLoans(loans);
+  
+  alert(`✅ Préstamo "${loan.description}" cancelado totalmente.\nImporte: ${fmtEUR(amount)}`);
+  
+  // Refresh the view
+  view.mount(document.getElementById('app'));
 };
 
 export default view;

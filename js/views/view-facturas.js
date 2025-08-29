@@ -16,124 +16,128 @@ const view = {
     const properties = getProperties();
     
     root.innerHTML = `
+      <!-- Block 1: File Upload -->
       <div class="row">
-        <div class="col"><div class="card">
-          <h1>📄 Gestión de Facturas con OCR</h1>
-          <div class="muted">Sube facturas (PDF/JPG/PNG) para clasificación automática</div>
-        </div></div>
+        <div class="col">
+          <div class="card">
+            <h2 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 500;">Subida de facturas</h2>
+            
+            <!-- Drag and Drop Zone -->
+            <div id="dropZone" style="border: 2px dashed var(--border); border-radius: 8px; padding: 40px; text-align: center; margin-bottom: 15px; transition: border-color 0.3s; background: var(--header-bg);">
+              <div style="font-size: 48px; margin-bottom: 15px; color: #374151;">📁</div>
+              <div style="font-size: 16px; margin-bottom: 10px; font-weight: 500;">Arrastra y suelta facturas aquí</div>
+              <div class="small muted" style="margin-bottom: 15px;">Formatos soportados: PDF, JPG, PNG, ZIP (múltiples facturas)</div>
+              <div style="margin-bottom: 15px;">
+                <input type="file" id="invoiceFiles" accept=".pdf,.jpg,.jpeg,.png,.zip" multiple style="display: none;">
+                <button id="selectFiles" class="secondary" style="margin-right: 10px;">Seleccionar archivos</button>
+                <button id="processInvoices" class="primary" disabled>Procesar con OCR</button>
+                <button id="clearFiles" class="secondary" style="margin-left: 10px;" disabled>Limpiar</button>
+              </div>
+              <div id="fileList" style="margin-top: 15px; text-align: left;"></div>
+            </div>
+            
+            <div id="ocrProgress" style="display:none; margin-top:15px;">
+              <div style="margin-bottom: 10px;">
+                <span id="progressText">Procesando archivos...</span>
+                <span id="progressCounter" style="float: right;">0/0</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+              </div>
+            </div>
+            
+            <div id="ocrResults" style="display:none; margin-top:20px;">
+              <!-- OCR results will be displayed here -->
+            </div>
+          </div>
+        </div>
       </div>
       
+      <!-- Block 2: Processed Invoices Table -->
       <div class="row">
-        <div class="col"><div class="card">
-          <h2>📤 Subir Facturas</h2>
-          
-          <!-- Drag and Drop Zone -->
-          <div id="dropZone" style="border: 2px dashed #ccc; border-radius: 10px; padding: 40px; text-align: center; margin-bottom: 15px; transition: border-color 0.3s;">
-            <div style="font-size: 48px; margin-bottom: 15px;">📁</div>
-            <div style="font-size: 18px; margin-bottom: 10px;">Arrastra y suelta facturas aquí</div>
-            <div class="small muted" style="margin-bottom: 15px;">Soporta: PDF, JPG, PNG, ZIP (múltiples facturas)</div>
-            <div style="margin-bottom: 15px;">
-              <input type="file" id="invoiceFiles" accept=".pdf,.jpg,.jpeg,.png,.zip" multiple style="display: none;">
-              <button id="selectFiles" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">📂 Seleccionar Archivos</button>
-            </div>
-            <div id="fileList" style="margin-top: 15px; text-align: left;"></div>
-          </div>
-          
-          <div style="margin-bottom:15px;">
-            <button id="processInvoices" class="primary" disabled>🔍 Procesar con OCR</button>
-            <button id="clearFiles" class="secondary" style="margin-left:10px;" disabled>🗑️ Limpiar</button>
-          </div>
-          
-          <div id="ocrProgress" style="display:none; margin-top:15px;">
-            <div style="margin-bottom: 10px;">
-              <span id="progressText">Procesando archivos...</span>
-              <span id="progressCounter" style="float: right;">0/0</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" id="progressFill"></div>
-            </div>
-          </div>
-          
-          <div id="ocrResults" style="display:none; margin-top:20px;">
-            <!-- OCR results will be displayed here -->
-          </div>
-        </div></div>
-      </div>
-      
-      <div class="row">
-        <div class="col"><div class="card">
-          <h2>📋 Facturas Procesadas <span class="badge">${invoices.length}</span></h2>
-          <div class="grid" id="invoicesTable">
-            <table>
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Proveedor</th>
-                  <th>Concepto</th>
-                  <th>Importe</th>
-                  <th>Categoría</th>
-                  <th>Inmueble</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${invoices.map(inv => `
+        <div class="col">
+          <div class="card">
+            <h2 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 500;">Tabla de facturas procesadas</h2>
+            <div class="grid" id="invoicesTable">
+              <table>
+                <thead>
                   <tr>
-                    <td>${inv.date || '-'}</td>
-                    <td>${inv.supplier || '-'}</td>
-                    <td title="${inv.concept || ''}">${(inv.concept || '').substring(0, 30)}${(inv.concept || '').length > 30 ? '...' : ''}</td>
-                    <td>${fmtEUR(inv.totalAmount || 0)}</td>
-                    <td>
-                      <span style="color:${getCategoryColor(inv.category, categories)}">${getCategoryName(inv.category, categories)}</span>
-                    </td>
-                    <td>${getPropertyName(inv.propertyId, properties)}</td>
-                    <td>
-                      <span class="badge ${inv.status === 'verified' ? 'success' : inv.status === 'rejected' ? 'danger' : 'warning'}">
-                        ${inv.status === 'verified' ? '✅ Verificada' : inv.status === 'rejected' ? '❌ Rechazada' : '⏳ Pendiente'}
-                      </span>
-                    </td>
-                    <td>
-                      <button onclick="editInvoice('${inv.id}')" class="small">✏️ Editar</button>
-                      <button onclick="viewInvoice('${inv.id}')" class="small">👁️ Ver</button>
-                      ${inv.status === 'pending' ? `<button onclick="verifyInvoice('${inv.id}')" class="small success">✅ Verificar</button>` : ''}
-                      <button onclick="deleteInvoice('${inv.id}')" class="small danger">🗑️</button>
-                    </td>
+                    <th>Fecha</th>
+                    <th>Proveedor</th>
+                    <th>Concepto</th>
+                    <th style="text-align: right;">Importe</th>
+                    <th>Categoría</th>
+                    <th>Inmueble</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                   </tr>
-                `).join('')}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  ${invoices.map(inv => `
+                    <tr>
+                      <td>${inv.date || '-'}</td>
+                      <td>${inv.supplier || '-'}</td>
+                      <td title="${inv.concept || ''}">${(inv.concept || '').substring(0, 30)}${(inv.concept || '').length > 30 ? '...' : ''}</td>
+                      <td style="text-align: right; font-family: 'Inter', monospace; font-weight: 500;">${fmtEUR(inv.totalAmount || 0)}</td>
+                      <td>
+                        <span style="color:${getCategoryColor(inv.category, categories)}">${getCategoryName(inv.category, categories)}</span>
+                      </td>
+                      <td>
+                        <select onchange="updateInvoiceProperty('${inv.id}', this.value)" style="font-size: 12px; border: 1px solid var(--border); border-radius: 4px; padding: 2px;">
+                          <option value="">Sin inmueble</option>
+                          ${properties.map(prop => `
+                            <option value="${prop.id}" ${prop.id === inv.propertyId ? 'selected' : ''}>
+                              ${prop.address?.substring(0, 20) || 'Sin dirección'}
+                            </option>
+                          `).join('')}
+                        </select>
+                      </td>
+                      <td>
+                        ${getStatusChip(inv.status)}
+                      </td>
+                      <td>
+                        <div style="display: flex; gap: 4px;">
+                          <button onclick="editInvoice('${inv.id}')" class="small secondary" title="Editar">✏</button>
+                          <button onclick="viewInvoice('${inv.id}')" class="small secondary" title="Ver documento">👁</button>
+                          <button onclick="assignProperty('${inv.id}')" class="small secondary" title="Asignar inmueble">🏠</button>
+                          <button onclick="deleteInvoice('${inv.id}')" class="small danger" title="Borrar">🗑</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div></div>
+        </div>
       </div>
       
+      <!-- Block 3: Fiscal Summary -->
       <div class="row">
-        <div class="col"><div class="card">
-          <h2>📊 Resumen Fiscal</h2>
-          <div class="row">
-            <div class="col">
-              <h3>Gastos Deducibles</h3>
-              <div class="kpi text-success">${fmtEUR(calculateDeductibleAmount(invoices, categories))}</div>
-              <div class="small muted">Total gastos deducibles del año</div>
+        <div class="col">
+          <div class="card">
+            <h2 style="margin: 0 0 20px 0; font-size: 16px; font-weight: 500;">Resumen Fiscal</h2>
+            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+              <div style="flex: 1; padding: 20px; background: #ECFDF5; border: 1px solid var(--secondary); border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: var(--secondary);">${fmtEUR(calculateDeductibleAmount(invoices, categories))}</div>
+                <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">Gastos deducibles</div>
+              </div>
+              <div style="flex: 1; padding: 20px; background: var(--header-bg); border: 1px solid var(--border); border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: var(--text-secondary);">${fmtEUR(calculateNonDeductibleAmount(invoices, categories))}</div>
+                <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">Gastos no deducibles</div>
+              </div>
+              <div style="flex: 1; padding: 20px; background: #FEF3C7; border: 1px solid var(--warning); border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #92400E;">${invoices.filter(inv => inv.status === 'pending').length}</div>
+                <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">Facturas pendientes</div>
+              </div>
             </div>
-            <div class="col">
-              <h3>Gastos No Deducibles</h3>
-              <div class="kpi text-danger">${fmtEUR(calculateNonDeductibleAmount(invoices, categories))}</div>
-              <div class="small muted">Total gastos no deducibles del año</div>
-            </div>
-            <div class="col">
-              <h3>Facturas Pendientes</h3>
-              <div class="kpi text-warning">${invoices.filter(inv => inv.status === 'pending').length}</div>
-              <div class="small muted">Requieren verificación manual</div>
+            
+            <div style="display: flex; gap: 10px; justify-content: center;">
+              <button id="exportTaxReport" class="primary">Exportar informe fiscal (PDF)</button>
+              <button id="exportDeductibleExpenses" class="secondary">Exportar gastos deducibles (Excel)</button>
             </div>
           </div>
-          
-          <div style="margin-top:20px;">
-            <button id="exportTaxReport" class="primary">📄 Exportar Informe Fiscal</button>
-            <button id="exportDeductibleExpenses" class="secondary">📊 Exportar Gastos Deducibles (Excel)</button>
-            <button id="loadDemoData" class="warning" style="margin-left:20px;">🧪 Cargar Datos Demo</button>
-          </div>
-        </div></div>
+        </div>
       </div>
     `;
 
@@ -231,11 +235,6 @@ const view = {
     
     root.querySelector('#exportTaxReport').onclick = () => exportTaxReport(invoices, categories);
     root.querySelector('#exportDeductibleExpenses').onclick = () => exportDeductibleExpenses(invoices, categories);
-    root.querySelector('#loadDemoData').onclick = () => {
-      const result = addSampleInvoices();
-      alert(result.message);
-      view.mount(root.parentElement.parentElement); // Refresh view
-    };
     
     // Global functions for invoice actions
     window.editInvoice = (invoiceId) => editInvoiceModal(invoiceId, root);
@@ -635,6 +634,45 @@ function getPropertyName(propertyId, properties) {
   const property = properties.find(p => p.id === propertyId);
   return property ? (property.address || 'Sin dirección') : '-';
 }
+
+function getStatusChip(status) {
+  switch(status) {
+    case 'verified':
+      return `<span style="background: #ECFDF5; color: var(--secondary); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; border: 1px solid var(--secondary);">Validada</span>`;
+    case 'rejected':
+      return `<span style="background: #FEF2F2; color: var(--error); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; border: 1px solid var(--error);">Error/Por revisar</span>`;
+    default:
+      return `<span style="background: #FEF3C7; color: #92400E; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; border: 1px solid var(--warning);">Pendiente</span>`;
+  }
+}
+
+// Add function to update invoice property inline
+window.updateInvoiceProperty = function(invoiceId, propertyId) {
+  updateInvoice(invoiceId, { propertyId: propertyId || null });
+  // No need to refresh the whole view, the select will stay updated
+};
+
+// Add function to assign property
+window.assignProperty = function(invoiceId) {
+  const properties = getProperties();
+  if (properties.length === 0) {
+    alert('No hay inmuebles disponibles. Crea un inmueble primero.');
+    return;
+  }
+  
+  const propertyOptions = properties.map(p => `${p.id}:${p.address}`).join('\n');
+  const selectedProperty = prompt(`Selecciona un inmueble:\n${propertyOptions}\n\nIntroduce el ID del inmueble:`);
+  
+  if (selectedProperty) {
+    const property = properties.find(p => p.id === selectedProperty);
+    if (property) {
+      updateInvoice(invoiceId, { propertyId: selectedProperty });
+      view.mount(document.getElementById('app'));
+    } else {
+      alert('ID de inmueble no válido');
+    }
+  }
+};
 
 function calculateDeductibleAmount(invoices, categories) {
   const deductibleCategories = categories.filter(c => c.deductible).map(c => c.id);
