@@ -194,7 +194,7 @@ function renderConditionsForm() {
 
 const view = {
   route: '#/loans',
-  title: 'Préstamos',
+  title: 'Hipotecas',
   
   async mount(root) {
     const loans = getLoans();
@@ -205,8 +205,8 @@ const view = {
       <div class="row">
         <div class="col">
           <div class="card">
-            <h1>🏦 Préstamos y Hipotecas</h1>
-            <div class="small muted">Gestión completa con amortización francesa e integración automática</div>
+            <h1>🏦 Hipotecas y Financiación</h1>
+            <div class="small muted">Gestión de préstamos inmobiliarios con amortización francesa</div>
           </div>
         </div>
       </div>

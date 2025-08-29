@@ -30,15 +30,15 @@ function renderSimulator() {
 
 const view = {
   route: '#/calculator',
-  title: '🧮 Calculadora',
+  title: '📊 Calculadora',
   
   async mount(root) {
     root.innerHTML = `
       <div class="row">
         <div class="col">
           <div class="card">
-            <h1>🧮 Calculadora de Préstamos</h1>
-            <div class="small muted">Simula diferentes escenarios de préstamos y amortizaciones</div>
+            <h1>📊 Simulador de Hipotecas</h1>
+            <div class="small muted">Calcula cuotas, amortizaciones y escenarios de financiación inmobiliaria</div>
           </div>
         </div>
       </div>

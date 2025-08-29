@@ -712,15 +712,15 @@ function getCostLabel(costId) {
 }
 
 const view = {
-  route:'#/inmuebles', title:'Inmuebles',
+  route:'#/inmuebles', title:'Cartera Inmobiliaria',
   async mount(root){
     const properties = getProperties();
     
     root.innerHTML = `
       <div class="row">
         <div class="col"><div class="card">
-          <h1>Gestión de Inmuebles</h1>
-          <div class="muted">Administra tus propiedades de alquiler y su P&L</div>
+          <h1>🏢 Cartera Inmobiliaria</h1>
+          <div class="muted">Gestión integral de tus inversiones inmobiliarias</div>
         </div></div>
       </div>
       

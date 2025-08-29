@@ -1,11 +1,12 @@
 
 :root{
-  --bg:#ffffff;
-  --fg:#111827;
+  --bg:#F5F6F7;
+  --fg:#1A3C68;
   --muted:#6b7280;
-  --card:#f9fafb;
+  --card:#ffffff;
   --border:#e5e7eb;
-  --accent:#7c3aed; /* default violet */
+  --accent:#37C785; /* ATLAS mint green */
+  --primary:#1A3C68; /* ATLAS deep blue */
 }
 body.theme-dark{
   --bg:#0b1020;
