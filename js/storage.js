@@ -11,6 +11,8 @@ const FORECAST_KEY = y => `fp-forecast-${y}`;
 const TAXES_KEY = 'fp-taxes';
 const PROPERTIES_KEY = y => `fp-properties-${y}`;
 const LOANS_KEY = y => `fp-loans-${y}`;
+const INVOICES_KEY = y => `fp-invoices-${y}`;
+const INVOICE_ATTACHMENTS_KEY = 'fp-invoice-attachments';
 
 export function ensureSeed(){
   if(!LS.getItem(SETTINGS_KEY)){
@@ -50,12 +52,30 @@ export function ensureSeed(){
   }
   if(!LS.getItem(CATEGORIES_KEY)){
     LS.setItem(CATEGORIES_KEY, JSON.stringify([
-      {id:'income', name:'Ingresos', color:'#10b981', type:'income'},
-      {id:'housing', name:'Vivienda', color:'#f59e0b', type:'expense'},
-      {id:'utilities', name:'Servicios', color:'#ef4444', type:'expense'},
-      {id:'food', name:'Alimentación', color:'#8b5cf6', type:'expense'},
-      {id:'transport', name:'Transporte', color:'#06b6d4', type:'expense'},
-      {id:'entertainment', name:'Ocio', color:'#ec4899', type:'expense'}
+      // Ingresos
+      {id:'income', name:'Ingresos por Alquileres', color:'#10b981', type:'income', deductible:false},
+      
+      // Gastos deducibles habituales
+      {id:'loan_interest', name:'Intereses de Préstamos e Hipotecas', color:'#dc2626', type:'expense', deductible:true},
+      {id:'taxes_fees', name:'Impuestos y Tasas (IBI, basuras)', color:'#b91c1c', type:'expense', deductible:true},
+      {id:'community_fees', name:'Comunidad de Propietarios', color:'#991b1b', type:'expense', deductible:true},
+      {id:'insurance', name:'Seguros (hogar, impago)', color:'#7c2d12', type:'expense', deductible:true},
+      {id:'utilities', name:'Suministros (luz, agua, gas)', color:'#ef4444', type:'expense', deductible:true},
+      {id:'maintenance', name:'Mantenimiento y Reparaciones', color:'#f97316', type:'expense', deductible:true},
+      {id:'external_services', name:'Servicios Externos (limpieza, vigilancia)', color:'#ea580c', type:'expense', deductible:true},
+      {id:'professional_fees', name:'Honorarios Profesionales', color:'#d97706', type:'expense', deductible:true},
+      {id:'marketing', name:'Publicidad y Comercialización', color:'#ca8a04', type:'expense', deductible:true},
+      {id:'other_deductible', name:'Otros Gastos Deducibles', color:'#a3a3a3', type:'expense', deductible:true},
+      
+      // Gastos no deducibles
+      {id:'loan_principal', name:'Amortización Principal Hipoteca', color:'#6b7280', type:'expense', deductible:false},
+      {id:'improvements', name:'Reformas que Aumentan Valor', color:'#4b5563', type:'expense', deductible:false},
+      {id:'personal_expenses', name:'Gastos Personales', color:'#374151', type:'expense', deductible:false},
+      
+      // Categorías generales (mantener compatibilidad)
+      {id:'food', name:'Alimentación', color:'#8b5cf6', type:'expense', deductible:false},
+      {id:'transport', name:'Transporte', color:'#06b6d4', type:'expense', deductible:false},
+      {id:'entertainment', name:'Ocio', color:'#ec4899', type:'expense', deductible:false}
     ]));
   }
   if(!LS.getItem(BUDGETS_KEY)){
@@ -256,6 +276,61 @@ export function getBudgetAlerts(y = getYear()) {
   });
   
   return alerts;
+}
+
+// Invoices and Attachments
+export function getInvoices(y=getYear()){ return JSON.parse(LS.getItem(INVOICES_KEY(y))||'[]'); }
+export function saveInvoices(invoices,y=getYear()){ LS.setItem(INVOICES_KEY(y), JSON.stringify(invoices)); }
+
+export function getInvoiceAttachments(){ return JSON.parse(LS.getItem(INVOICE_ATTACHMENTS_KEY)||'{}'); }
+export function saveInvoiceAttachments(attachments){ LS.setItem(INVOICE_ATTACHMENTS_KEY, JSON.stringify(attachments)); }
+
+export function addInvoice(invoiceData, y=getYear()) {
+  const invoices = getInvoices(y);
+  const invoice = {
+    id: generateInvoiceId(),
+    ...invoiceData,
+    createdAt: new Date().toISOString(),
+    status: 'pending', // pending, verified, rejected
+    source: 'ocr' // ocr, manual
+  };
+  invoices.push(invoice);
+  saveInvoices(invoices, y);
+  return invoice;
+}
+
+export function updateInvoice(invoiceId, updateData, y=getYear()) {
+  const invoices = getInvoices(y);
+  const index = invoices.findIndex(inv => inv.id === invoiceId);
+  if (index !== -1) {
+    invoices[index] = { ...invoices[index], ...updateData };
+    saveInvoices(invoices, y);
+    return invoices[index];
+  }
+  return null;
+}
+
+export function deleteInvoice(invoiceId, y=getYear()) {
+  const invoices = getInvoices(y);
+  const index = invoices.findIndex(inv => inv.id === invoiceId);
+  if (index !== -1) {
+    const deleted = invoices.splice(index, 1)[0];
+    saveInvoices(invoices, y);
+    
+    // Also remove attachment
+    const attachments = getInvoiceAttachments();
+    if (attachments[invoiceId]) {
+      delete attachments[invoiceId];
+      saveInvoiceAttachments(attachments);
+    }
+    
+    return deleted;
+  }
+  return null;
+}
+
+function generateInvoiceId() {
+  return 'inv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
 // Import fmtEUR for alerts - note this creates a circular dependency, but it's acceptable for this use case

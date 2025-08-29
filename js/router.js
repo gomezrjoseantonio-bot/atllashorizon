@@ -5,8 +5,9 @@ import viewLoans from './views/view-loans.js';
 import viewCalculator from './views/view-calculator.js';
 import viewExport from './views/view-export.js';
 import viewInmuebles from './views/view-inmuebles-complex.js';
+import viewFacturas from './views/view-facturas.js';
 
-const VIEWS = [viewDashboard, viewInmuebles, viewLoans, viewCalculator, viewExport, viewConfig];
+const VIEWS = [viewDashboard, viewInmuebles, viewLoans, viewFacturas, viewCalculator, viewExport, viewConfig];
 
 function currentRoute(){ return location.hash || '#/dashboard'; }
 
