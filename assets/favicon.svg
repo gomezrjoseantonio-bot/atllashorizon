@@ -1,7 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
-  <path d="M32 2l26 15v30L32 62 6 47V17z" fill="url(#g)"/>
-  <path d="M20 40c0-8 6-14 12-14s12 6 12 14" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <circle cx="32" cy="26" r="3" fill="#fff"/>
+  <defs>
+    <linearGradient id="atlasGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1A3C68"/>
+      <stop offset="100%" stop-color="#37C785"/>
+    </linearGradient>
+  </defs>
+  <!-- Minimalist column design representing strength and support -->
+  <rect x="20" y="12" width="8" height="40" fill="#1A3C68" rx="2"/>
+  <rect x="28" y="8" width="8" height="44" fill="url(#atlasGradient)" rx="2"/>
+  <rect x="36" y="16" width="8" height="36" fill="#37C785" rx="2"/>
+  <!-- Base/foundation -->
+  <rect x="16" y="52" width="32" height="4" fill="#1A3C68" rx="2"/>
 </svg>

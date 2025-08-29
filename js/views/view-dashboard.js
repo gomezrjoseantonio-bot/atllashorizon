@@ -74,7 +74,7 @@ const view = {
         <div class="col">
           <div class="card">
             <h2 style="color:var(--accent);">💰 Cashflow Global</h2>
-            <div class="kpi" style="color:${totalRentalIncome > 0 ? 'var(--accent)' : 'red'};">${fmtEUR(totalRentalIncome)}</div>
+            <div class="kpi text-success">${fmtEUR(totalRentalIncome)}</div>
             <div class="small muted">Ingresos mensuales actuales</div>
             <div style="margin-top:10px;">
               <div><strong>Propiedades activas:</strong> ${totalProperties}</div>
@@ -91,7 +91,7 @@ const view = {
               ${treasuryByAccount.map(acc => `
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                   <span>${acc.name}:</span>
-                  <span style="color:${acc.balance >= acc.threshold ? 'var(--accent)' : 'red'};">${fmtEUR(acc.balance)}</span>
+                  <span class="${acc.balance >= acc.threshold ? 'text-success' : 'text-danger'}">${fmtEUR(acc.balance)}</span>
                 </div>
               `).join('')}
             </div>
@@ -120,22 +120,22 @@ const view = {
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
               <button class="primary" onclick="location.hash='#/inmuebles'">+ Añadir Inmueble</button>
               <button class="primary" onclick="location.hash='#/loans'">Gestionar Préstamos</button>
-              <button style="background:var(--accent); color:white; border-color:var(--accent);" onclick="generateReports()">📊 Generar Informes</button>
+              <button class="secondary" onclick="generateReports()">📊 Generar Informes</button>
             </div>
           </div>
         </div>
         <div class="col">
           <div class="card">
-            <h2 style="color:red;">🚨 Alertas</h2>
+            <h2 class="text-danger">🚨 Alertas</h2>
             <div style="margin-top:15px;">
               ${vacancyAlerts.length > 0 ? vacancyAlerts.map(alert => `
-                <div style="padding:8px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; margin-bottom:8px; color:#dc2626;">
+                <div class="badge danger" style="display:block; margin-bottom:8px; padding:12px; text-align:left;">
                   ${alert}
                 </div>
               `).join('') : '<div class="muted">No hay alertas pendientes</div>'}
               
               ${treasuryByAccount.filter(acc => acc.balance < acc.threshold).map(acc => `
-                <div style="padding:8px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; margin-bottom:8px; color:#dc2626;">
+                <div class="badge danger" style="display:block; margin-bottom:8px; padding:12px; text-align:left;">
                   Saldo bajo en ${acc.name}: ${fmtEUR(acc.balance)} (umbral: ${fmtEUR(acc.threshold)})
                 </div>
               `).join('')}
@@ -176,9 +176,9 @@ const view = {
                       <tr>
                         <td>${prop.address || 'Sin dirección'}</td>
                         <td>${prop.rentalType === 'rooms' ? `Habitaciones (${prop.rooms?.length || 0})` : 'Piso completo'}</td>
-                        <td style="color:var(--accent); font-weight:bold;">${fmtEUR(monthlyIncome)}</td>
+                        <td class="text-success" style="font-weight:600;">${fmtEUR(monthlyIncome)}</td>
                         <td>
-                          <span style="color:${occupancyRate === 100 ? 'var(--accent)' : occupancyRate > 50 ? 'orange' : 'red'};">
+                          <span class="badge ${occupancyRate === 100 ? 'success' : occupancyRate > 50 ? 'warning' : 'danger'}">
                             ${occupancyRate.toFixed(0)}% ocupado
                           </span>
                         </td>
