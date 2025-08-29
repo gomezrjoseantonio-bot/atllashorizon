@@ -719,8 +719,8 @@ const view = {
     root.innerHTML = `
       <div class="row">
         <div class="col"><div class="card">
-          <h1>Gestión de Inmuebles</h1>
-          <div class="muted">Administra tus propiedades de alquiler y su P&L</div>
+          <h1>🏠 Gestión de Propiedades ATLAS</h1>
+          <div class="muted">Administra tu cartera de inversiones inmobiliarias</div>
         </div></div>
       </div>
       

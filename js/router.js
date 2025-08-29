@@ -1,25 +1,20 @@
-// Router muy simple + registro de vistas en el menú
-import viewHoy from './views/view-hoy.js';
-import viewMes from './views/view-mes.js';
+// ATLAS Router - Real Estate Investment Platform
+import viewDashboard from './views/view-dashboard.js';
 import viewConfig from './views/view-config.js';
-import viewNomina from './views/view-nomina.js';
-import viewRecurrences from './views/view-recurrences.js';
-import viewCalendar from './views/view-calendar.js';
 import viewLoans from './views/view-loans.js';
 import viewCalculator from './views/view-calculator.js';
-import viewAnnual from './views/view-annual.js';
 import viewExport from './views/view-export.js';
 import viewInmuebles from './views/view-inmuebles-complex.js';
 
-const VIEWS = [viewHoy, viewNomina, viewRecurrences, viewCalendar, viewLoans, viewCalculator, viewInmuebles, viewAnnual, viewMes, viewExport, viewConfig];
+const VIEWS = [viewDashboard, viewInmuebles, viewLoans, viewCalculator, viewExport, viewConfig];
 
-function currentRoute(){ return location.hash || '#/hoy'; }
+function currentRoute(){ return location.hash || '#/dashboard'; }
 
 async function render(){
   const root = document.getElementById('app');
   if(!root){ console.error('#app no existe'); return; }
   const route = currentRoute();
-  const found = VIEWS.find(v => v.route === route) || viewHoy;
+  const found = VIEWS.find(v => v.route === route) || viewDashboard;
   await found.mount(root);
   highlight(route);
 }

@@ -1,11 +1,12 @@
 
 :root{
-  --bg:#ffffff;
-  --fg:#111827;
+  --bg:#F5F6F7; /* ATLAS light gray */
+  --fg:#1A3C68; /* ATLAS deep blue */
   --muted:#6b7280;
-  --card:#f9fafb;
+  --card:#ffffff;
   --border:#e5e7eb;
-  --accent:#7c3aed; /* default violet */
+  --accent:#37C785; /* ATLAS mint green */
+  --primary:#1A3C68; /* ATLAS deep blue for primary elements */
 }
 body.theme-dark{
   --bg:#0b1020;
@@ -38,7 +39,7 @@ h2{font-size:18px;margin:0 0 8px 0}
 input,select,button{font:inherit;color:inherit}
 input,select{padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--bg)}
 button{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer}
-button.primary{background:var(--accent);color:white;border-color:var(--accent)}
+button.primary{background:var(--primary);color:white;border-color:var(--primary)}
 .grid{overflow:auto;border:1px solid var(--border);border-radius:12px}
 table{border-collapse:collapse;width:100%}
 th,td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
