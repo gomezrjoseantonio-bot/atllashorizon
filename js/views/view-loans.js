@@ -1,5 +1,5 @@
 import { calculateFrenchAmortization, fmtEUR, parseEuro, fmtDateISO, addMonths, calculateCurrentLoanState, monthsBetween } from '../utils.js';
-import { getLoans, saveLoans, getAccounts, getProperties, getReal, saveReal, getBudgets, saveBudgets, getCategories, saveCategories } from '../storage.js';
+import { getLoans, saveLoans, getAccounts, getProperties, getReal, saveReal, getCategories, saveCategories } from '../storage.js';
 
 function renderLoansList(loans, accounts, properties) {
   const accountMap = Object.fromEntries(accounts.map(a => [a.id, a]));
@@ -388,49 +388,10 @@ function saveLoan(root) {
   
   saveLoans(loans);
   
-  // Add to budget category if not exists
-  addLoanToBudget(loan);
-  
   alert('Préstamo guardado correctamente');
   
   // Refresh the view
   view.mount(root.parentElement);
-}
-
-function addLoanToBudget(loan) {
-  const categories = getCategories();
-  const budgets = getBudgets();
-  
-  // Check if loan category exists
-  let loanCategory = categories.find(c => c.id === 'loans');
-  if (!loanCategory) {
-    loanCategory = {
-      id: 'loans',
-      name: 'Préstamos e Hipotecas',
-      color: '#dc2626',
-      type: 'expense'
-    };
-    categories.push(loanCategory);
-    saveCategories(categories);
-  }
-  
-  // Add or update budget
-  const schedule = calculateFrenchAmortization(loan.principal, loan.effectiveRate / 100, loan.years);
-  const monthlyPayment = schedule.length > 0 ? schedule[0].payment : 0;
-  
-  let loanBudget = budgets.find(b => b.categoryId === 'loans');
-  if (!loanBudget) {
-    loanBudget = {
-      categoryId: 'loans',
-      monthlyLimit: monthlyPayment,
-      alertThreshold: 0.9
-    };
-    budgets.push(loanBudget);
-  } else {
-    loanBudget.monthlyLimit += monthlyPayment;
-  }
-  
-  saveBudgets(budgets);
 }
 
 function populateLoanForm(loan) {
